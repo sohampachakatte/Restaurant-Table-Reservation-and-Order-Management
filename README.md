@@ -200,6 +200,8 @@ Junction table representing the relationship between reservations and restaurant
 **Composite Primary Key:**
 (Reservation_ID, Table_ID)
 
+---
+
 ## 6. Staff
 
 Stores information about restaurant staff.
