@@ -273,6 +273,14 @@ FROM Orders;
 <b>Soham Pachakatte</b><br/>
 Developer
 </td>
+  <td align="center">
+<b>Niraj Singh</b><br/>
+Developer
+</td>
+  <td align="center">
+<b>Ayush Suryawanshi</b><br/>
+Developer
+</td>
 </tr>
 </table>
 
