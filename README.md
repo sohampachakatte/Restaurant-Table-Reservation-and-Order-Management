@@ -1,6 +1,21 @@
-# 🍽️ Restaurant Table Reservation and Order Management
+<div align="center">
 
-> A complete system for managing **restaurant table reservations, customer orders, tables, menu items, and billing** efficiently.
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF8C42,100:FF3E4D&height=220&section=header&text=Restaurant%20Reservation%20%26%20Order%20System&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Reserve%20%E2%80%A2%20Order%20%E2%80%A2%20Manage%20%E2%80%A2%20Serve&descAlignY=58&descSize=18" width="100%"/>
+
+<a href="https://github.com/your-username/Restaurant-Table-Reservation-and-Order-Management">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=FF5A36&center=true&vCenter=true&width=650&lines=A+complete+SQL-powered+restaurant+system+%F0%9F%8D%BD%EF%B8%8F;Tables+%C2%B7+Reservations+%C2%B7+Orders+%C2%B7+Billing;Built+with+MySQL+%26+ER-Diagram+Design" alt="Typing SVG" />
+</a>
+
+<br/>
+
+![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![SQL](https://img.shields.io/badge/Language-SQL-00758F?style=for-the-badge&logo=postgresql&logoColor=white)
+![ER Diagram](https://img.shields.io/badge/Design-ER%20Diagram-orange?style=for-the-badge)
+![Docs](https://img.shields.io/badge/Docs-Markdown-informational?style=for-the-badge&logo=markdown&logoColor=white)
+![License](https://img.shields.io/badge/License-Educational-lightgrey?style=for-the-badge)
+![Stars](https://img.shields.io/github/stars/your-username/Restaurant-Table-Reservation-and-Order-Management?style=for-the-badge&color=yellow)
+
+</div>
 
 ---
 
@@ -8,47 +23,74 @@
 
 **Restaurant Table Reservation and Order Management** is a database management project designed to simplify restaurant operations.
 
-The system allows restaurants to manage table reservations, customer information, menu items, orders, and payments in an organized way.
+The system allows restaurants to manage table reservations, customer information, menu items, orders, and payments in an organized way — reducing manual work and streamlining day-to-day operations from the front door to the final bill.
 
-The project focuses on designing an efficient **database system** that reduces manual work and improves restaurant management.
+> 🎬 **Add a demo here:** a short screen-recording GIF of your queries running (table lookup → reservation → order → bill) makes this section come alive. Drop the file into a `demo/` folder and reference it like:
+> `![Demo](./demo/restaurant-demo.gif)`
+
+---
+
+## 📚 Table of Contents
+
+- [✨ Features](#-features)
+- [🗂️ Database Entities](#️-database-entities)
+- [🛠️ Technologies Used](#️-technologies-used)
+- [📐 ER Diagram](#-er-diagram)
+- [📁 Project Structure](#-project-structure)
+- [🚀 Getting Started](#-getting-started)
+- [📊 Example Operations](#-example-operations)
+- [🎯 Project Objectives](#-project-objectives)
+- [🔮 Future Improvements](#-future-improvements)
+- [👨‍💻 Contributors](#-contributors)
+- [⭐ Support](#-support)
+- [📄 License](#-license)
 
 ---
 
 ## ✨ Features
 
-- 🪑 **Table Management**
-  - Add and manage restaurant tables
-  - Track table availability
-  - Manage table capacity
+<table>
+<tr>
+<td width="50%" valign="top">
 
-- 📅 **Table Reservation**
-  - Create reservations
-  - Store reservation date and time
-  - Manage reservation status
+### 🪑 Table Management
+- Add and manage restaurant tables
+- Track table availability in real time
+- Manage table capacity by party size
 
-- 👤 **Customer Management**
-  - Store customer information
-  - View customer reservation history
+### 📅 Table Reservation
+- Create reservations in a few clicks
+- Store reservation date and time
+- Manage reservation status (pending / confirmed / cancelled)
 
-- 🍕 **Menu Management**
-  - Add, update, and remove menu items
-  - Manage item prices and categories
+### 👤 Customer Management
+- Store customer information
+- View full customer reservation history
 
-- 🛒 **Order Management**
-  - Create customer orders
-  - Add multiple menu items to an order
-  - Track order status
+</td>
+<td width="50%" valign="top">
 
-- 💳 **Billing & Payment**
-  - Calculate order totals
-  - Manage payment details
-  - Track payment status
+### 🍕 Menu Management
+- Add, update, and remove menu items
+- Manage item prices and categories
+
+### 🛒 Order Management
+- Create customer orders
+- Add multiple menu items to a single order
+- Track order status end-to-end
+
+### 💳 Billing & Payment
+- Calculate order totals automatically
+- Manage payment details
+- Track payment status
+
+</td>
+</tr>
+</table>
 
 ---
 
 ## 🗂️ Database Entities
-
-The main entities used in the system are:
 
 ```text
 Customer
@@ -82,11 +124,13 @@ Order ───────── contains ───────────► 
 
 ## 🛠️ Technologies Used
 
-- 🗄️ **Database:** MySQL
-- 💻 **Language:** SQL
-- 📊 **Database Design:** ER Diagram
-- 📝 **Documentation:** Markdown
-- 🖼️ **ER Diagram Tool:** Dia
+| Category | Tool |
+|---|---|
+| 🗄️ Database | MySQL |
+| 💻 Language | SQL |
+| 📊 Database Design | ER Diagram |
+| 📝 Documentation | Markdown |
+| 🖼️ ER Diagram Tool | Dia |
 
 ---
 
@@ -94,11 +138,13 @@ Order ───────── contains ───────────► 
 
 The project includes an **Entity Relationship Diagram (ER Diagram)** showing the relationships between customers, reservations, tables, orders, menu items, and payments.
 
-> 📌 Add your ER diagram image here:
+<div align="center">
 
-```markdown
 ![ER Diagram](./ER-Diagram/restaurant-er-diagram.png)
-```
+
+</div>
+
+> 📌 Replace the path above with your actual diagram once it's added to `./ER-Diagram/`.
 
 ---
 
@@ -124,39 +170,51 @@ Restaurant-Table-Reservation-and-Order-Management/
 
 ## 🚀 Getting Started
 
-### 1️⃣ Clone the Repository
+<table>
+<tr><td>1️⃣</td><td>
 
+**Clone the Repository**
 ```bash
 git clone https://github.com/your-username/Restaurant-Table-Reservation-and-Order-Management.git
 ```
 
-### 2️⃣ Open MySQL
+</td></tr>
+<tr><td>2️⃣</td><td>
+
+**Open MySQL**
 
 Open **MySQL Workbench**, MySQL CLI, or another SQL client.
 
-### 3️⃣ Create the Database
+</td></tr>
+<tr><td>3️⃣</td><td>
 
-Run the database creation script:
-
+**Create the Database**
 ```sql
 CREATE DATABASE restaurant_management;
 ```
 
-### 4️⃣ Select the Database
+</td></tr>
+<tr><td>4️⃣</td><td>
 
+**Select the Database**
 ```sql
 USE restaurant_management;
 ```
 
-### 5️⃣ Run the SQL Files
+</td></tr>
+<tr><td>5️⃣</td><td>
 
-Execute the table creation, data insertion, and query scripts in the appropriate order.
+**Run the SQL Files**
+
+Execute the table creation, data insertion, and query scripts in order:
+`create_tables.sql` → `insert_data.sql` → `queries.sql`
+
+</td></tr>
+</table>
 
 ---
 
 ## 📊 Example Operations
-
-The database supports operations such as:
 
 ```sql
 -- View available tables
@@ -182,8 +240,6 @@ FROM Orders;
 
 ## 🎯 Project Objectives
 
-The main objectives of this project are:
-
 - Understand **database design**
 - Implement **relationships between entities**
 - Practice **SQL queries**
@@ -196,24 +252,29 @@ The main objectives of this project are:
 
 ## 🔮 Future Improvements
 
-Some possible future improvements include:
-
-- 🌐 Web-based restaurant management interface
-- 📱 Mobile application
-- 🔐 User authentication
-- 💳 Online payment integration
-- 📧 Reservation confirmation emails
-- 📈 Restaurant analytics dashboard
-- 🔔 Real-time table availability
-- 🤖 AI-based food recommendations
+| Idea | Description |
+|---|---|
+| 🌐 Web Interface | Web-based restaurant management dashboard |
+| 📱 Mobile App | On-the-go management for staff |
+| 🔐 Authentication | Secure user login and roles |
+| 💳 Online Payments | Integrated payment gateway |
+| 📧 Email Confirmations | Automated reservation confirmations |
+| 📈 Analytics Dashboard | Restaurant performance insights |
+| 🔔 Real-time Availability | Live table status updates |
+| 🤖 AI Recommendations | Smart food recommendations |
 
 ---
 
 ## 👨‍💻 Contributors
 
-| Name | Role |
-|---|---|
-| **Soham Pachakatte** | Developer |
+<table>
+<tr>
+<td align="center">
+<b>Soham Pachakatte</b><br/>
+Developer
+</td>
+</tr>
+</table>
 
 Want to contribute? Feel free to **fork this repository**, make your changes, and submit a **Pull Request**.
 
@@ -231,6 +292,12 @@ This project is created for **educational and academic purposes**.
 
 ---
 
+<div align="center">
+
 ### 🍽️ Restaurant Management Made Simple
 
 **Reserve • Order • Manage • Serve**
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF3E4D,100:FF8C42&height=120&section=footer&animation=fadeIn" width="100%"/>
+
+</div>
