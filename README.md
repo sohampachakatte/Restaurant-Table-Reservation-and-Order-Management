@@ -1,96 +1,75 @@
-<div align="center">
+# 🍽️ Restaurant Table Reservation and Order Management
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF8C42,100:FF3E4D&height=220&section=header&text=Restaurant%20Reservation%20%26%20Order%20System&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Reserve%20%E2%80%A2%20Order%20%E2%80%A2%20Manage%20%E2%80%A2%20Serve&descAlignY=58&descSize=18" width="100%"/>
+> A Java-based restaurant management application built with **Java Swing**, **JDBC**, and **MySQL** for managing customers, tables, reservations, staff, menu items, orders, and payments.
 
-<a href="https://github.com/your-username/Restaurant-Table-Reservation-and-Order-Management">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=FF5A36&center=true&vCenter=true&width=650&lines=A+complete+SQL-powered+restaurant+system+%F0%9F%8D%BD%EF%B8%8F;Tables+%C2%B7+Reservations+%C2%B7+Orders+%C2%B7+Billing;Built+with+MySQL+%26+ER-Diagram+Design" alt="Typing SVG" />
-</a>
+## 📌 Overview
 
-<br/>
+The **Restaurant Table Reservation and Order Management System** is a desktop-based restaurant management application developed using **Java**, **Java Swing**, **JDBC**, and **MySQL**.
 
-![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![SQL](https://img.shields.io/badge/Language-SQL-00758F?style=for-the-badge&logo=postgresql&logoColor=white)
-![ER Diagram](https://img.shields.io/badge/Design-ER%20Diagram-orange?style=for-the-badge)
-![Docs](https://img.shields.io/badge/Docs-Markdown-informational?style=for-the-badge&logo=markdown&logoColor=white)
-![License](https://img.shields.io/badge/License-Educational-lightgrey?style=for-the-badge)
-![Stars](https://img.shields.io/github/stars/your-username/Restaurant-Table-Reservation-and-Order-Management?style=for-the-badge&color=yellow)
+The application provides a graphical interface for managing common restaurant operations such as:
 
-</div>
+- Customer information
+- Restaurant tables
+- Table reservations
+- Staff information
+- Menu items and ingredients
+- Customer orders
+- Order items and quantities
+- Payments and billing
 
----
-
-## 🌟 Overview
-
-**Restaurant Table Reservation and Order Management** is a database management project designed to simplify restaurant operations.
-
-The system allows restaurants to manage table reservations, customer information, menu items, orders, and payments in an organized way — reducing manual work and streamlining day-to-day operations from the front door to the final bill.
-
-> 🎬 **Add a demo here:** a short screen-recording GIF of your queries running (table lookup → reservation → order → bill) makes this section come alive. Drop the file into a `demo/` folder and reference it like:
-> `![Demo](./demo/restaurant-demo.gif)`
-
----
-
-## 📚 Table of Contents
-
-- [✨ Features](#-features)
-- [🗂️ Database Entities](#️-database-entities)
-- [🛠️ Technologies Used](#️-technologies-used)
-- [📐 ER Diagram](#-er-diagram)
-- [📁 Project Structure](#-project-structure)
-- [🚀 Getting Started](#-getting-started)
-- [📊 Example Operations](#-example-operations)
-- [🎯 Project Objectives](#-project-objectives)
-- [🔮 Future Improvements](#-future-improvements)
-- [👨‍💻 Contributors](#-contributors)
-- [⭐ Support](#-support)
-- [📄 License](#-license)
-
----
+The project demonstrates practical concepts including **Object-Oriented Programming, JDBC database connectivity, CRUD operations, SQL, relational database design, database normalization, exception handling, and GUI development**.
 
 ## ✨ Features
 
-<table>
-<tr>
-<td width="50%" valign="top">
+### 👤 Customer Management
+
+- Add and manage customer information
+- Manage customer phone numbers
+- View customer reservation history
 
 ### 🪑 Table Management
+
 - Add and manage restaurant tables
-- Track table availability in real time
-- Manage table capacity by party size
+- Track table capacity
+- Track table location
+- Track table availability
 
-### 📅 Table Reservation
-- Create reservations in a few clicks
+### 📅 Reservation Management
+
+- Create reservations
 - Store reservation date and time
-- Manage reservation status (pending / confirmed / cancelled)
+- Specify number of guests
+- Assign tables to reservations
 
-### 👤 Customer Management
-- Store customer information
-- View full customer reservation history
+### 👨‍🍳 Staff Management
 
-</td>
-<td width="50%" valign="top">
+- Manage staff information
+- Manage staff roles
+- Manage staff phone numbers
 
 ### 🍕 Menu Management
-- Add, update, and remove menu items
-- Manage item prices and categories
+
+- Add and manage menu items
+- Manage prices and categories
+- Manage menu item ingredients
 
 ### 🛒 Order Management
+
 - Create customer orders
-- Add multiple menu items to a single order
-- Track order status end-to-end
+- Add multiple menu items to an order
+- Specify quantities
+- Track order status
+- Calculate order totals
 
-### 💳 Billing & Payment
-- Calculate order totals automatically
-- Manage payment details
-- Track payment status
+### 💳 Payment Management
 
-</td>
-</tr>
-</table>
-
----
+- Record payments
+- Store payment methods
+- Track payment information
 
 ## 🗂️ Database Entities
+
+The main entities used in the system are:
 
 ```text
 Customer
@@ -124,97 +103,290 @@ Order ───────── contains ───────────► 
 
 ## 🛠️ Technologies Used
 
-| Category | Tool |
+| Technology | Purpose |
 |---|---|
-| 🗄️ Database | MySQL |
-| 💻 Language | SQL |
-| 📊 Database Design | ER Diagram |
-| 📝 Documentation | Markdown |
-| 🖼️ ER Diagram Tool | Dia |
-
----
+| ☕ Java | Application development |
+| 🖥️ Java Swing | Desktop graphical user interface |
+| 🔌 JDBC | Java–MySQL database connectivity |
+| 🗄️ MySQL | Relational database |
+| 📝 SQL | Database operations |
+| 📊 ER Diagram | Database design |
+| 📦 Maven | Project and dependency management |
+| 💡 IntelliJ IDEA | Development environment |
+| 🔀 Git & GitHub | Version control and collaboration |
 
 ## 📐 ER Diagram
 
 The project includes an **Entity Relationship Diagram (ER Diagram)** showing the relationships between customers, reservations, tables, orders, menu items, and payments.
 
-<div align="center">
+> 📌 Add your ER diagram image here:
 
+```markdown
 ![ER Diagram](./ER-Diagram/restaurant-er-diagram.png)
-
-</div>
-
-> 📌 Replace the path above with your actual diagram once it's added to `./ER-Diagram/`.
+```
 
 ---
 
-## 📁 Project Structure
+# 🗄️ Database Schema
+
+The application uses a relational MySQL database to manage customers, restaurant tables, reservations, staff, menu items, orders, and payments.
+
+The database schema is derived from the Entity Relationship Diagram (ER Diagram).
+
+---
+
+## 1. Customer
+
+Stores information about restaurant customers.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Customer_ID` | INT | PK | Unique customer identifier |
+| `First_Name` | VARCHAR | | Customer first name |
+| `Middle_Name` | VARCHAR | | Optional middle name |
+| `Last_Name` | VARCHAR | | Customer last name |
+| `Email` | VARCHAR | | Customer email address |
+
+---
+
+## 2. Customer_Phone
+
+Stores one or more phone numbers associated with a customer.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Customer_ID` | INT | PK, FK | References `Customer(Customer_ID)` |
+| `Phone_No` | VARCHAR | PK | Customer phone number |
+
+---
+
+## 3. RestaurantTable
+
+Stores information about restaurant tables.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Table_ID` | INT | PK | Unique table identifier |
+| `Location` | VARCHAR | | Table location |
+| `Capacity` | INT | | Maximum seating capacity |
+| `Status` | VARCHAR | | Current table status |
+
+---
+
+## 4. Reservation
+
+Stores customer reservation information.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Reservation_ID` | INT | PK | Unique reservation identifier |
+| `Reservation_Date` | DATE | | Date of reservation |
+| `Reservation_Time` | TIME | | Time of reservation |
+| `Number_Of_Guests` | INT | | Number of guests |
+| `Duration` | INT | | Reservation duration |
+| `Customer_ID` | INT | FK | References `Customer(Customer_ID)` |
+
+---
+
+## 5. Reservation_Table
+
+Junction table representing the relationship between reservations and restaurant tables.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Reservation_ID` | INT | PK, FK | References `Reservation(Reservation_ID)` |
+| `Table_ID` | INT | PK, FK | References `RestaurantTable(Table_ID)` |
+
+**Composite Primary Key:**
+(Reservation_ID, Table_ID)
+
+---
+
+## 6. Staff
+
+Stores information about restaurant staff.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Staff_ID` | INT | PK | Unique staff identifier |
+| `First_Name` | VARCHAR | | Staff first name |
+| `Middle_Name` | VARCHAR | | Optional middle name |
+| `Last_Name` | VARCHAR | | Staff last name |
+| `Role` | VARCHAR | | Staff role |
+
+---
+
+## 7. Staff_Phone
+
+Stores phone numbers associated with staff members.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Staff_ID` | INT | PK, FK | References `Staff(Staff_ID)` |
+| `Phone_No` | VARCHAR | PK | Staff phone number |
+
+---
+
+## 8. Menu_Item
+
+Stores restaurant menu item information.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Item_ID` | INT | PK | Unique menu item identifier |
+| `Item_Name` | VARCHAR | | Menu item name |
+| `Price` | DECIMAL | | Menu item price |
+| `Category` | VARCHAR | | Menu item category |
+
+---
+
+## 9. Menu_Item_Ingredients
+
+Stores ingredients associated with menu items.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Item_ID` | INT | PK, FK | References `Menu_Item(Item_ID)` |
+| `Ingredient` | VARCHAR | PK | Ingredient name |
+
+---
+
+## 10. Orders
+
+Stores customer order information.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Order_ID` | INT | PK | Unique order identifier |
+| `Order_Date` | DATE | | Order date |
+| `Order_Status` | VARCHAR | | Current order status |
+| `Total_Amount` | DECIMAL | | Total order amount |
+| `Customer_ID` | INT | FK | References `Customer(Customer_ID)` |
+| `Staff_ID` | INT | FK | References `Staff(Staff_ID)` |
+
+---
+
+## 11. Order_Contains
+
+Junction table connecting orders with menu items.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Order_ID` | INT | PK, FK | References `Orders(Order_ID)` |
+| `Item_ID` | INT | PK, FK | References `Menu_Item(Item_ID)` |
+| `Quantity` | INT | | Quantity ordered |
+
+**Composite Primary Key:**
+(Order_ID, Item_ID)
+
+---
+
+## 12. Payment
+
+Stores payment information associated with orders.
+
+| Column | Type | Key | Description |
+|---|---|---|---|
+| `Payment_ID` | INT | PK | Unique payment identifier |
+| `Amount` | DECIMAL |  | Payment amount |
+| `Payment_Method` | VARCHAR |  | Payment method |
+| `Payment_Date` | DATE |  | Payment date |
+| `Order_ID` | INT | FK, UNIQUE | References `Orders(Order_ID)` |
+
+---
+## 🔗 Database Relationships
+
+| Relationship | Cardinality | Implementation |
+|---|---|---|
+| Customer → Reservation | 1:M | `Reservation.Customer_ID` |
+| Customer → Customer_Phone | 1:M | `Customer_Phone.Customer_ID` |
+| Reservation ↔ RestaurantTable | M:N | `Reservation_Table` |
+| Staff → Staff_Phone | 1:M | `Staff_Phone.Staff_ID` |
+| Customer → Orders | 1:M | `Orders.Customer_ID` |
+| Staff → Orders | 1:M | `Orders.Staff_ID` |
+| Menu_Item → Menu_Item_Ingredients | 1:M | `Menu_Item_Ingredients.Item_ID` |
+| Orders ↔ Menu_Item | M:N | `Order_Contains` |
+| Orders → Payment | 1:1 | `Payment.Order_ID` |
+
+---
+## 📊 Database Tables Overview
+
+| Table | Purpose |
+|---|---|
+| `Customer` | Stores customer information |
+| `Customer_Phone` | Stores customer phone numbers |
+| `RestaurantTable` | Stores restaurant table information |
+| `Reservation` | Stores customer reservations |
+| `Reservation_Table` | Connects reservations with tables |
+| `Staff` | Stores staff information |
+| `Staff_Phone` | Stores staff phone numbers |
+| `Menu_Item` | Stores menu item information |
+| `Menu_Item_Ingredients` | Stores menu item ingredients |
+| `Orders` | Stores customer orders |
+| `Order_Contains` | Connects orders with menu items |
+| `Payment` | Stores payment information |
+
+---
+
+## 📂 Project Structure
+
+The project contains the database scripts, ER diagram, Java application, and project documentation.
 
 ```text
 Restaurant-Table-Reservation-and-Order-Management/
 │
-├── 📁 ER-Diagram/
+├── ER-Diagram/
 │   └── restaurant-er-diagram.png
 │
-├── 📁 SQL/
+├── SQL/
 │   ├── create_database.sql
 │   ├── create_tables.sql
 │   ├── insert_data.sql
 │   └── queries.sql
 │
-├── 📄 README.md
-└── 📄 LICENSE
+├── src/
+│   └── ...
+│
+├── README.md
+└── LICENSE
 ```
 
----
 
 ## 🚀 Getting Started
 
-<table>
-<tr><td>1️⃣</td><td>
+### 1️⃣ Clone the Repository
 
-**Clone the Repository**
 ```bash
 git clone https://github.com/your-username/Restaurant-Table-Reservation-and-Order-Management.git
 ```
 
-</td></tr>
-<tr><td>2️⃣</td><td>
-
-**Open MySQL**
+### 2️⃣ Open MySQL
 
 Open **MySQL Workbench**, MySQL CLI, or another SQL client.
 
-</td></tr>
-<tr><td>3️⃣</td><td>
+### 3️⃣ Create the Database
 
-**Create the Database**
+Run the database creation script:
+
 ```sql
 CREATE DATABASE restaurant_management;
 ```
 
-</td></tr>
-<tr><td>4️⃣</td><td>
+### 4️⃣ Select the Database
 
-**Select the Database**
 ```sql
 USE restaurant_management;
 ```
 
-</td></tr>
-<tr><td>5️⃣</td><td>
+### 5️⃣ Run the SQL Files
 
-**Run the SQL Files**
-
-Execute the table creation, data insertion, and query scripts in order:
-`create_tables.sql` → `insert_data.sql` → `queries.sql`
-
-</td></tr>
-</table>
+Execute the table creation, data insertion, and query scripts in the appropriate order.
 
 ---
 
 ## 📊 Example Operations
+
+The database supports operations such as:
 
 ```sql
 -- View available tables
@@ -240,6 +412,8 @@ FROM Orders;
 
 ## 🎯 Project Objectives
 
+The main objectives of this project are:
+
 - Understand **database design**
 - Implement **relationships between entities**
 - Practice **SQL queries**
@@ -252,37 +426,26 @@ FROM Orders;
 
 ## 🔮 Future Improvements
 
-| Idea | Description |
-|---|---|
-| 🌐 Web Interface | Web-based restaurant management dashboard |
-| 📱 Mobile App | On-the-go management for staff |
-| 🔐 Authentication | Secure user login and roles |
-| 💳 Online Payments | Integrated payment gateway |
-| 📧 Email Confirmations | Automated reservation confirmations |
-| 📈 Analytics Dashboard | Restaurant performance insights |
-| 🔔 Real-time Availability | Live table status updates |
-| 🤖 AI Recommendations | Smart food recommendations |
+Some possible future improvements include:
+
+- 🌐 Web-based restaurant management interface
+- 📱 Mobile application
+- 🔐 User authentication
+- 💳 Online payment integration
+- 📧 Reservation confirmation emails
+- 📈 Restaurant analytics dashboard
+- 🔔 Real-time table availability
+- 🤖 AI-based food recommendations
 
 ---
 
 ## 👨‍💻 Contributors
 
-<table>
-<tr>
-<td align="center">
-<b>Soham Pachakatte</b><br/>
-Developer
-</td>
-  <td align="center">
-<b>Niraj Singh</b><br/>
-Developer
-</td>
-  <td align="center">
-<b>Ayush Suryawanshi</b><br/>
-Developer
-</td>
-</tr>
-</table>
+| Name                 | Role |
+|----------------------|---|
+| **Soham Pachakatte** | Developer |
+| **Ayush Suravanshi** | Developer |
+| **Niraj Singh**      | Developer |
 
 Want to contribute? Feel free to **fork this repository**, make your changes, and submit a **Pull Request**.
 
@@ -300,12 +463,6 @@ This project is created for **educational and academic purposes**.
 
 ---
 
-<div align="center">
-
 ### 🍽️ Restaurant Management Made Simple
 
 **Reserve • Order • Manage • Serve**
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF3E4D,100:FF8C42&height=120&section=footer&animation=fadeIn" width="100%"/>
-
-</div>
