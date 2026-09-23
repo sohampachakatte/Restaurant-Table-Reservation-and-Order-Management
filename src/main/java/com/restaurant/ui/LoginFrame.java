@@ -130,7 +130,7 @@ public class LoginFrame extends JFrame {
 
         ImagePanel() {
             setBackground(new Color(28, 12, 8));
-            image = new ImageIcon("images/loginImage1.jpg").getImage();
+            image = new ImageIcon("images/login.jpg").getImage();
         }
 
         @Override
