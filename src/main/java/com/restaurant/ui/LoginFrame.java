@@ -400,3 +400,26 @@ public class LoginFrame extends JFrame {
         }
     }
 }
+private void openDashboard(String role, String email) {
+    switch (role) {
+        case "CUSTOMER" ->
+                new customerDashboard(email).setVisible(true);
+
+        case "STAFF" -> {
+            // Retrieve staffId using email via UserAccountDAO
+            UserAccountDAO dao = new UserAccountDAO();
+            int staffId = dao.getStaffIdByEmail(email); // Ensure this method exists in UserAccountDAO
+            new staffDashboard(staffId).setVisible(true);
+        }
+
+        case "ADMIN" ->
+                new AdminDashboard(email).setVisible(true);
+
+        default ->
+                showStyledMessage(
+                        "Account Error",
+                        "This account has an unknown role.",
+                        true
+                );
+    }
+}

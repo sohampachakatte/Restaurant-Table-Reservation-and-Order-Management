@@ -119,22 +119,14 @@ Order ───────── contains ───────────► 
 
 The project includes an **Entity Relationship Diagram (ER Diagram)** showing the relationships between customers, reservations, tables, orders, menu items, and payments.
 
-<<<<<<< HEAD
-> 📌 Add your ER diagram image here:
 
-```markdown
-![ER Diagram](./ER-Diagram/restaurant-er-diagram.png)
-=======
-> 📌  ER diagram image :
+   ER diagram image :
 
 
 ![ER Diagram](images/er-diagram.png)
 ```markdown
-(https://lucid.app/lucidspark/060674c7-d1b9-4a25-a60a-2a604afa0eab/edit?viewport_loc=-3126%2C-632%2C6818%2C3533%2C0_0&invitationId=inv_30d0d91a-55f6-458d-8fea-13c71c27d5e8)
->>>>>>> 39ebb25e12b25f826caabdf433e869fa1228fba2
-```
-
 ---
+```
 
 # 🗄️ Database Schema
 
