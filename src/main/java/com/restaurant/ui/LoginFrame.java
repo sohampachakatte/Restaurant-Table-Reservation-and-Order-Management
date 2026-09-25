@@ -14,589 +14,282 @@ public class LoginFrame extends JFrame {
     private final JPasswordField passwordField = new JPasswordField();
 
     public LoginFrame() {
-
         setTitle("Restaurant Management System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         JPanel mainPanel = new JPanel(new GridLayout(1, 2));
-
         mainPanel.add(createLoginPanel());
         mainPanel.add(new ImagePanel());
 
         add(mainPanel);
     }
 
-    // =========================================================
-    // LOGIN PANEL
-    // =========================================================
-
     private JPanel createLoginPanel() {
-
         JPanel outerPanel = new FoodBackgroundPanel();
         outerPanel.setLayout(new GridBagLayout());
 
         JPanel formPanel = new JPanel(new GridBagLayout());
-
         formPanel.setBackground(Color.WHITE);
         formPanel.setPreferredSize(new Dimension(500, 490));
         formPanel.setBorder(new EmptyBorder(35, 55, 35, 55));
 
         GridBagConstraints c = new GridBagConstraints();
-
         c.gridx = 0;
         c.weightx = 1.0;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
 
-        // -----------------------------------------------------
-        // LOGO
-        // -----------------------------------------------------
-
         JLabel logo = new JLabel("Restaurant Management System");
-
-        logo.setFont(
-                new Font("Arial", Font.BOLD, 20)
-        );
-
-        logo.setForeground(
-                new Color(170, 10, 55)
-        );
+        logo.setFont(new Font("Arial", Font.BOLD, 20));
+        logo.setForeground(new Color(170, 10, 55));
 
         c.gridy = 0;
         c.insets = new Insets(0, 0, 42, 0);
-
         formPanel.add(logo, c);
 
-        // -----------------------------------------------------
-        // HEADING
-        // -----------------------------------------------------
-
         JLabel heading = new JLabel("Welcome Back!");
-
-        heading.setFont(
-                new Font("Arial", Font.BOLD, 28)
-        );
-
-        heading.setForeground(
-                new Color(45, 45, 45)
-        );
+        heading.setFont(new Font("Arial", Font.BOLD, 28));
+        heading.setForeground(new Color(45, 45, 45));
 
         c.gridy = 1;
         c.insets = new Insets(0, 0, 8, 0);
-
         formPanel.add(heading, c);
 
-        // -----------------------------------------------------
-        // SUBTITLE
-        // -----------------------------------------------------
-
-        JLabel subtitle =
-                new JLabel("Sign in to manage your restaurant.");
-
-        subtitle.setFont(
-                new Font("Arial", Font.PLAIN, 14)
-        );
-
-        subtitle.setForeground(
-                new Color(110, 110, 110)
-        );
+        JLabel subtitle = new JLabel("Sign in to manage your restaurant.");
+        subtitle.setFont(new Font("Arial", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(110, 110, 110));
 
         c.gridy = 2;
         c.insets = new Insets(0, 0, 25, 0);
-
         formPanel.add(subtitle, c);
-
-        // -----------------------------------------------------
-        // EMAIL
-        // -----------------------------------------------------
 
         c.gridy = 3;
         c.insets = new Insets(0, 0, 15, 0);
-
-        formPanel.add(
-                createInputPanel(
-                        "Email address",
-                        emailField
-                ),
-                c
-        );
-
-        // -----------------------------------------------------
-        // PASSWORD
-        // -----------------------------------------------------
+        formPanel.add(createInputPanel("Email address", emailField), c);
 
         c.gridy = 4;
         c.insets = new Insets(0, 0, 12, 0);
+        formPanel.add(createInputPanel("Password", passwordField), c);
 
-        formPanel.add(
-                createInputPanel(
-                        "Password",
-                        passwordField
-                ),
-                c
-        );
+        passwordField.addActionListener(e -> login());
 
-        // -----------------------------------------------------
-        // REMEMBER ME
-        // -----------------------------------------------------
-
-        JCheckBox rememberCheck =
-                new JCheckBox("Remember me");
-
+        JCheckBox rememberCheck = new JCheckBox("Remember me");
         rememberCheck.setBackground(Color.WHITE);
-
-        rememberCheck.setFont(
-                new Font("Arial", Font.PLAIN, 14)
-        );
+        rememberCheck.setFont(new Font("Arial", Font.PLAIN, 14));
 
         c.gridy = 5;
         c.insets = new Insets(0, 0, 25, 0);
-
         formPanel.add(rememberCheck, c);
 
-        // -----------------------------------------------------
-        // LOGIN BUTTON
-        // -----------------------------------------------------
-
-        RoundedButton loginButton =
-                new RoundedButton("Login");
-
-        loginButton.setBackground(
-                new Color(170, 10, 55)
-        );
-
+        RoundedButton loginButton = new RoundedButton("Login");
+        loginButton.setBackground(new Color(170, 10, 55));
         loginButton.setForeground(Color.WHITE);
-
-        loginButton.setFont(
-                new Font("Arial", Font.BOLD, 15)
-        );
-
-        loginButton.setPreferredSize(
-                new Dimension(0, 46)
-        );
-
-        loginButton.addActionListener(
-                e -> login()
-        );
+        loginButton.setFont(new Font("Arial", Font.BOLD, 15));
+        loginButton.setPreferredSize(new Dimension(0, 46));
+        loginButton.addActionListener(e -> login());
 
         c.gridy = 6;
         c.insets = new Insets(0, 0, 18, 0);
-
         formPanel.add(loginButton, c);
 
-        // -----------------------------------------------------
-        // REGISTER BUTTON
-        // -----------------------------------------------------
-
-        JButton registerButton =
-                new JButton(
-                        "<html>Don't have an account? "
-                                + "<font color='#AA0A37'>"
-                                + "<u>Register</u>"
-                                + "</font></html>"
-                );
-
-        registerButton.setFont(
-                new Font("Arial", Font.BOLD, 14)
+        JButton registerButton = new JButton(
+                "<html>Don't have an account? " +
+                        "<font color='#AA0A37'><u>Register</u></font></html>"
         );
 
+        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
         registerButton.setBorderPainted(false);
         registerButton.setContentAreaFilled(false);
         registerButton.setFocusPainted(false);
-
-        registerButton.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
-        );
+        registerButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         registerButton.addActionListener(e -> {
-
             dispose();
-
-            new CustomerRegistrationFrame()
-                    .setVisible(true);
+            new CustomerRegistrationFrame().setVisible(true);
         });
 
         c.gridy = 7;
         c.insets = new Insets(0, 0, 0, 0);
         c.anchor = GridBagConstraints.CENTER;
-
         formPanel.add(registerButton, c);
 
         outerPanel.add(formPanel);
-
         return outerPanel;
     }
 
-    // =========================================================
-    // INPUT FIELD
-    // =========================================================
-
-    private JPanel createInputPanel(
-            String labelText,
-            JTextField field
-    ) {
-
-        JPanel inputPanel =
-                new JPanel(
-                        new BorderLayout(0, 6)
-                );
-
+    private JPanel createInputPanel(String labelText, JTextField field) {
+        JPanel inputPanel = new JPanel(new BorderLayout(0, 6));
         inputPanel.setOpaque(false);
 
-        JLabel label =
-                new JLabel(labelText);
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Arial", Font.BOLD, 13));
+        label.setForeground(new Color(55, 55, 55));
 
-        label.setFont(
-                new Font("Arial", Font.BOLD, 13)
-        );
+        field.setFont(new Font("Arial", Font.PLAIN, 15));
+        field.setPreferredSize(new Dimension(0, 44));
+        field.setMargin(new Insets(0, 15, 0, 15));
+        field.setBorder(new RoundedBorder(new Color(220, 220, 220), 16));
+        field.setBackground(new Color(252, 252, 252));
 
-        label.setForeground(
-                new Color(55, 55, 55)
-        );
-
-        field.setFont(
-                new Font("Arial", Font.PLAIN, 15)
-        );
-
-        field.setPreferredSize(
-                new Dimension(0, 44)
-        );
-
-        field.setMargin(
-                new Insets(0, 15, 0, 15)
-        );
-
-        field.setBorder(
-                new RoundedBorder(
-                        new Color(220, 220, 220),
-                        16
-                )
-        );
-
-        field.setBackground(
-                new Color(252, 252, 252)
-        );
-
-        inputPanel.add(
-                label,
-                BorderLayout.NORTH
-        );
-
-        inputPanel.add(
-                field,
-                BorderLayout.CENTER
-        );
+        inputPanel.add(label, BorderLayout.NORTH);
+        inputPanel.add(field, BorderLayout.CENTER);
 
         return inputPanel;
     }
 
-    // =========================================================
-    // LOGIN LOGIC
-    // =========================================================
-
     private void login() {
+        String email = emailField.getText().trim();
+        String password = new String(passwordField.getPassword());
 
-        String email =
-                emailField.getText().trim();
-
-        String password =
-                new String(
-                        passwordField.getPassword()
-                );
-
-        if (email.isEmpty()
-                || password.isEmpty()) {
-
+        if (email.isEmpty() || password.isEmpty()) {
             showStyledMessage(
                     "Missing Information",
                     "Please enter both email and password.",
                     true
             );
-
             return;
         }
 
         try {
-
-            UserAccountDAO userAccountDAO =
-                    new UserAccountDAO();
-
-            String role =
-                    userAccountDAO.authenticate(
-                            email,
-                            password
-                    );
+            UserAccountDAO userAccountDAO = new UserAccountDAO();
+            String role = userAccountDAO.authenticate(email, password);
 
             if (role == null) {
-
                 showStyledMessage(
                         "Login Failed",
                         "Incorrect email or password.",
                         true
                 );
-
                 return;
             }
 
-            dispose();
-
-            openDashboard(
-                    role,
-                    email
-            );
+            openDashboard(role, email);
 
         } catch (SQLException exception) {
+            exception.printStackTrace();
 
             showStyledMessage(
                     "Database Error",
-                    "Could not connect to the database.",
+                    "Could not connect to database: " + exception.getMessage(),
                     true
             );
-
-            exception.printStackTrace();
         }
     }
 
-    // =========================================================
-    // OPEN DASHBOARD
-    // =========================================================
-
-    private void openDashboard(
-            String role,
-            String email
-    ) {
+    private void openDashboard(String role, String email) {
+        role = role.trim().toUpperCase();
 
         switch (role) {
 
-            case "CUSTOMER" -> new customerDashboard(email)
-                    .setVisible(true);
+            case "CUSTOMER" -> {
+                dispose();
 
+                SwingUtilities.invokeLater(() -> {
+                    customerDashboard dashboard =
+                            new customerDashboard(email);
 
-            case "STAFF" -> {
-
-                try {
-
-                    UserAccountDAO dao =
-                            new UserAccountDAO();
-
-                    int staffId =
-                            dao.getStaffIdByEmail(email);
-
-                    new staffDashboard(staffId)
-                            .setVisible(true);
-
-                } catch (SQLException exception) {
-
-                    showStyledMessage(
-                            "Database Error",
-                            "Could not retrieve staff information.",
-                            true
-                    );
-
-                    exception.printStackTrace();
-                }
+                    dashboard.setVisible(true);
+                });
             }
 
+            case "STAFF" -> {
+                dispose();
 
-            case "ADMIN" -> new AdminDashboard(email)
-                    .setVisible(true);
+                SwingUtilities.invokeLater(() -> {
+                    staffDashboard dashboard =
+                            new staffDashboard(email);
 
+                    dashboard.setVisible(true);
+                });
+            }
+
+            case "ADMIN" -> {
+                dispose();
+
+                SwingUtilities.invokeLater(() -> {
+                    AdminDashboard dashboard =
+                            new AdminDashboard(email);
+
+                    dashboard.setVisible(true);
+                });
+            }
 
             default -> showStyledMessage(
                     "Account Error",
-                    "This account has an unknown role.",
+                    "Unknown account role: " + role,
                     true
             );
         }
     }
-
-    // =========================================================
-    // MESSAGE DIALOG
-    // =========================================================
 
     private void showStyledMessage(
             String title,
             String message,
             boolean isError
     ) {
-
-        JDialog dialog =
-                new JDialog(
-                        this,
-                        title,
-                        true
-                );
-
+        JDialog dialog = new JDialog(this, title, true);
         dialog.setUndecorated(true);
 
-        Color themeColor =
-                isError
-                        ? new Color(190, 30, 65)
-                        : new Color(35, 140, 85);
+        Color themeColor = isError
+                ? new Color(190, 30, 65)
+                : new Color(35, 140, 85);
 
-        JPanel panel =
-                new JPanel(
-                        new BorderLayout(15, 0)
-                );
-
+        JPanel panel = new JPanel(new BorderLayout(15, 0));
         panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(22, 25, 22, 25));
 
-        panel.setBorder(
-                new EmptyBorder(
-                        22,
-                        25,
-                        22,
-                        25
-                )
-        );
-
-        JLabel icon =
-                new JLabel(
-                        isError ? "!" : "✓"
-                );
-
-        icon.setFont(
-                new Font(
-                        "Arial",
-                        Font.BOLD,
-                        24
-                )
-        );
-
+        JLabel icon = new JLabel(isError ? "!" : "✓");
+        icon.setFont(new Font("Arial", Font.BOLD, 24));
         icon.setForeground(Color.WHITE);
-
-        icon.setHorizontalAlignment(
-                SwingConstants.CENTER
-        );
-
-        icon.setPreferredSize(
-                new Dimension(45, 45)
-        );
-
+        icon.setHorizontalAlignment(SwingConstants.CENTER);
+        icon.setPreferredSize(new Dimension(45, 45));
         icon.setOpaque(true);
         icon.setBackground(themeColor);
 
-        JLabel text =
-                new JLabel(
-                        "<html><b>"
-                                + title
-                                + "</b><br><br>"
-                                + message
-                                + "</html>"
-                );
-
-        text.setFont(
-                new Font(
-                        "Arial",
-                        Font.PLAIN,
-                        14
-                )
+        JLabel text = new JLabel(
+                "<html><b>" + title + "</b><br><br>" + message + "</html>"
         );
+        text.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        RoundedButton okButton =
-                new RoundedButton("OK");
-
+        RoundedButton okButton = new RoundedButton("OK");
         okButton.setBackground(themeColor);
         okButton.setForeground(Color.WHITE);
+        okButton.setPreferredSize(new Dimension(85, 36));
+        okButton.addActionListener(e -> dialog.dispose());
 
-        okButton.setPreferredSize(
-                new Dimension(85, 36)
-        );
-
-        okButton.addActionListener(
-                e -> dialog.dispose()
-        );
-
-        JPanel buttonPanel =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.RIGHT,
-                                0,
-                                0
-                        )
-                );
-
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.add(okButton);
 
-        JPanel content =
-                new JPanel(
-                        new BorderLayout(0, 15)
-                );
+        panel.add(icon, BorderLayout.WEST);
+        panel.add(text, BorderLayout.CENTER);
 
+        JPanel content = new JPanel(new BorderLayout(0, 15));
         content.setBackground(Color.WHITE);
-
-        content.add(
-                panel,
-                BorderLayout.CENTER
-        );
-
-        content.add(
-                buttonPanel,
-                BorderLayout.SOUTH
-        );
-
-        panel.add(
-                icon,
-                BorderLayout.WEST
-        );
-
-        panel.add(
-                text,
-                BorderLayout.CENTER
-        );
+        content.add(panel, BorderLayout.CENTER);
+        content.add(buttonPanel, BorderLayout.SOUTH);
 
         dialog.setContentPane(content);
-
-        dialog.getRootPane()
-                .setBorder(
-                        new RoundedBorder(
-                                themeColor,
-                                18
-                        )
-                );
-
-        dialog.setSize(
-                410,
-                175
-        );
-
+        dialog.getRootPane().setBorder(new RoundedBorder(themeColor, 18));
+        dialog.setSize(430, 180);
         dialog.setLocationRelativeTo(this);
-
         dialog.setVisible(true);
     }
 
-    // =========================================================
-    // ROUNDED BORDER
-    // =========================================================
-
-    static class RoundedBorder
-            extends AbstractBorder {
+    static class RoundedBorder extends AbstractBorder {
 
         private final Color color;
         private final int radius;
 
-        RoundedBorder(
-                Color color,
-                int radius
-        ) {
-
+        RoundedBorder(Color color, int radius) {
             this.color = color;
             this.radius = radius;
         }
 
         @Override
-        public Insets getBorderInsets(
-                Component component
-        ) {
-
-            return new Insets(
-                    8,
-                    12,
-                    8,
-                    12
-            );
+        public Insets getBorderInsets(Component component) {
+            return new Insets(8, 12, 8, 12);
         }
 
         @Override
@@ -608,9 +301,7 @@ public class LoginFrame extends JFrame {
                 int width,
                 int height
         ) {
-
-            Graphics2D g2 =
-                    (Graphics2D) graphics.create();
+            Graphics2D g2 = (Graphics2D) graphics.create();
 
             g2.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
@@ -618,10 +309,8 @@ public class LoginFrame extends JFrame {
             );
 
             g2.setColor(color);
-
             g2.drawRoundRect(
-                    x,
-                    y,
+                    x, y,
                     width - 1,
                     height - 1,
                     radius,
@@ -632,52 +321,34 @@ public class LoginFrame extends JFrame {
         }
     }
 
-    // =========================================================
-    // ROUNDED BUTTON
-    // =========================================================
-
-    static class RoundedButton
-            extends JButton {
+    static class RoundedButton extends JButton {
 
         RoundedButton(String text) {
-
             super(text);
 
             setFocusPainted(false);
             setBorderPainted(false);
             setContentAreaFilled(false);
             setOpaque(false);
-
-            setCursor(
-                    new Cursor(
-                            Cursor.HAND_CURSOR
-                    )
-            );
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
         }
 
         @Override
-        protected void paintComponent(
-                Graphics graphics
-        ) {
-
-            Graphics2D g2 =
-                    (Graphics2D) graphics.create();
+        protected void paintComponent(Graphics graphics) {
+            Graphics2D g2 = (Graphics2D) graphics.create();
 
             g2.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON
             );
 
-            Color buttonColor =
-                    getModel().isPressed()
-                            ? getBackground().darker()
-                            : getBackground();
+            Color buttonColor = getModel().isPressed()
+                    ? getBackground().darker()
+                    : getBackground();
 
             g2.setColor(buttonColor);
-
             g2.fillRoundRect(
-                    0,
-                    0,
+                    0, 0,
                     getWidth(),
                     getHeight(),
                     18,
@@ -685,43 +356,28 @@ public class LoginFrame extends JFrame {
             );
 
             g2.dispose();
-
             super.paintComponent(graphics);
         }
     }
 
-    // =========================================================
-    // FOOD BACKGROUND PANEL
-    // =========================================================
-
-    static class FoodBackgroundPanel
-            extends JPanel {
+    static class FoodBackgroundPanel extends JPanel {
 
         private final Image sticker;
 
         FoodBackgroundPanel() {
-
             setBackground(Color.WHITE);
-
-            sticker =
-                    new ImageIcon(
-                            "images/food-sticker.png"
-                    ).getImage();
+            sticker = new ImageIcon("images/food-sticker.png").getImage();
         }
 
         @Override
-        protected void paintComponent(
-                Graphics graphics
-        ) {
-
+        protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
 
             if (sticker.getWidth(this) <= 0) {
                 return;
             }
 
-            Graphics2D g2 =
-                    (Graphics2D) graphics.create();
+            Graphics2D g2 = (Graphics2D) graphics.create();
 
             g2.setComposite(
                     AlphaComposite.getInstance(
@@ -731,103 +387,44 @@ public class LoginFrame extends JFrame {
             );
 
             int size = 210;
+            int x = getWidth() - size - 25;
+            int y = getHeight() - size - 25;
 
-            int x =
-                    getWidth()
-                            - size
-                            - 25;
-
-            int y =
-                    getHeight()
-                            - size
-                            - 25;
-
-            g2.drawImage(
-                    sticker,
-                    x,
-                    y,
-                    size,
-                    size,
-                    this
-            );
-
+            g2.drawImage(sticker, x, y, size, size, this);
             g2.dispose();
         }
     }
 
-    // =========================================================
-    // IMAGE PANEL
-    // =========================================================
-
-    static class ImagePanel
-            extends JPanel {
+    static class ImagePanel extends JPanel {
 
         private final Image image;
 
         ImagePanel() {
-
-            setBackground(
-                    new Color(
-                            28,
-                            12,
-                            8
-                    )
-            );
-
-            image =
-                    new ImageIcon(
-                            "images/login.jpg"
-                    ).getImage();
+            setBackground(new Color(28, 12, 8));
+            image = new ImageIcon("images/login.jpg").getImage();
         }
 
         @Override
-        protected void paintComponent(
-                Graphics graphics
-        ) {
-
+        protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
 
-            int imageWidth =
-                    image.getWidth(this);
+            int imageWidth = image.getWidth(this);
+            int imageHeight = image.getHeight(this);
 
-            int imageHeight =
-                    image.getHeight(this);
-
-            if (imageWidth <= 0
-                    || imageHeight <= 0) {
-
+            if (imageWidth <= 0 || imageHeight <= 0) {
                 return;
             }
 
-            double scale =
-                    Math.max(
+            double scale = Math.max(
+                    (double) getWidth() / imageWidth,
+                    (double) getHeight() / imageHeight
+            );
 
-                            (double) getWidth()
-                                    / imageWidth,
+            int newWidth = (int) (imageWidth * scale);
+            int newHeight = (int) (imageHeight * scale);
 
-                            (double) getHeight()
-                                    / imageHeight
-                    );
-
-            int newWidth =
-                    (int) (
-                            imageWidth
-                                    * scale
-                    );
-
-            int newHeight =
-                    (int) (
-                            imageHeight
-                                    * scale
-                    );
-
-            int x =
-                    (getWidth()
-                            - newWidth) / 2;
-
-            int y =
-                    (getHeight()
-                            - newHeight) / 2;
+            int x = (getWidth() - newWidth) / 2;
+            int y = (getHeight() - newHeight) / 2;
 
             graphics.drawImage(
                     image,
