@@ -119,13 +119,14 @@ Order ───────── contains ───────────► 
 
 The project includes an **Entity Relationship Diagram (ER Diagram)** showing the relationships between customers, reservations, tables, orders, menu items, and payments.
 
-> 📌 Add your ER diagram image here:
 
+   ER diagram image :
+
+
+![ER Diagram](images/er-diagram.png)
 ```markdown
-![ER Diagram](./ER-Diagram/restaurant-er-diagram.png)
-```
-
 ---
+```
 
 # 🗄️ Database Schema
 

@@ -1,0 +1,256 @@
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #c77dbb; font-style: italic;}
+.s3 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+README.md</font>
+</center></td></tr></table>
+<pre><span class="s0"># </span><span class="s1">🍽️ Restaurant Table Reservation and Order Management</span>
+
+<span class="s0">&gt; </span><span class="s1">A complete system for managing **restaurant table reservations, customer orders, tables, menu items, and billing** efficiently.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">🌟 Overview</span>
+
+<span class="s1">**Restaurant Table Reservation and Order Management** is a database management project designed to simplify restaurant operations.</span>
+
+<span class="s1">The system allows restaurants to manage table reservations, customer information, menu items, orders, and payments in an organized way.</span>
+
+<span class="s1">The project focuses on designing an efficient **database system** that reduces manual work and improves restaurant management.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">✨ Features</span>
+
+<span class="s0">- </span><span class="s1">🪑 **Table Management**</span>
+  <span class="s0">- </span><span class="s1">Add and manage restaurant tables</span>
+  <span class="s0">- </span><span class="s1">Track table availability</span>
+  <span class="s0">- </span><span class="s1">Manage table capacity</span>
+
+<span class="s0">- </span><span class="s1">📅 **Table Reservation**</span>
+  <span class="s0">- </span><span class="s1">Create reservations</span>
+  <span class="s0">- </span><span class="s1">Store reservation date and time</span>
+  <span class="s0">- </span><span class="s1">Manage reservation status</span>
+
+<span class="s0">- </span><span class="s1">👤 **Customer Management**</span>
+  <span class="s0">- </span><span class="s1">Store customer information</span>
+  <span class="s0">- </span><span class="s1">View customer reservation history</span>
+
+<span class="s0">- </span><span class="s1">🍕 **Menu Management**</span>
+  <span class="s0">- </span><span class="s1">Add, update, and remove menu items</span>
+  <span class="s0">- </span><span class="s1">Manage item prices and categories</span>
+
+<span class="s0">- </span><span class="s1">🛒 **Order Management**</span>
+  <span class="s0">- </span><span class="s1">Create customer orders</span>
+  <span class="s0">- </span><span class="s1">Add multiple menu items to an order</span>
+  <span class="s0">- </span><span class="s1">Track order status</span>
+
+<span class="s0">- </span><span class="s1">💳 **Billing &amp; Payment**</span>
+  <span class="s0">- </span><span class="s1">Calculate order totals</span>
+  <span class="s0">- </span><span class="s1">Manage payment details</span>
+  <span class="s0">- </span><span class="s1">Track payment status</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">🗂️ Database Entities</span>
+
+<span class="s1">The main entities used in the system are:</span>
+
+<span class="s0">```</span><span class="s2">text</span>
+<span class="s3">Customer</span>
+   <span class="s3">│</span>
+   <span class="s3">│ makes</span>
+   <span class="s3">▼</span>
+<span class="s3">Reservation ─────── reserves ───────► Table</span>
+   <span class="s3">│</span>
+   <span class="s3">│ creates</span>
+   <span class="s3">▼</span>
+<span class="s3">Order ───────── contains ───────────► OrderItem</span>
+                                      <span class="s3">│</span>
+                                      <span class="s3">│ refers to</span>
+                                      <span class="s3">▼</span>
+                                   <span class="s3">MenuItem</span>
+<span class="s0">```</span>
+
+<span class="s0">### </span><span class="s1">Main Entities</span>
+
+<span class="s0">| </span><span class="s1">Entity </span><span class="s0">| </span><span class="s1">Description </span><span class="s0">|</span>
+<span class="s0">|---|---|</span>
+<span class="s0">| </span><span class="s1">👤 Customer </span><span class="s0">| </span><span class="s1">Stores customer details </span><span class="s0">|</span>
+<span class="s0">| </span><span class="s1">🪑 Table </span><span class="s0">| </span><span class="s1">Stores restaurant table information </span><span class="s0">|</span>
+<span class="s0">| </span><span class="s1">📅 Reservation </span><span class="s0">| </span><span class="s1">Manages table bookings </span><span class="s0">|</span>
+<span class="s0">| </span><span class="s1">🛒 Order </span><span class="s0">| </span><span class="s1">Stores customer orders </span><span class="s0">|</span>
+<span class="s0">| </span><span class="s1">🍕 MenuItem </span><span class="s0">| </span><span class="s1">Stores food/menu information </span><span class="s0">|</span>
+<span class="s0">| </span><span class="s1">📦 OrderItem </span><span class="s0">| </span><span class="s1">Connects orders with menu items </span><span class="s0">|</span>
+<span class="s0">| </span><span class="s1">💳 Payment </span><span class="s0">| </span><span class="s1">Stores payment information </span><span class="s0">|</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">🛠️ Technologies Used</span>
+
+<span class="s0">- </span><span class="s1">🗄️ **Database:** MySQL</span>
+<span class="s0">- </span><span class="s1">💻 **Language:** SQL</span>
+<span class="s0">- </span><span class="s1">📊 **Database Design:** ER Diagram</span>
+<span class="s0">- </span><span class="s1">📝 **Documentation:** Markdown</span>
+<span class="s0">- </span><span class="s1">🖼️ **ER Diagram Tool:** Dia</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">📐 ER Diagram</span>
+
+<span class="s1">The project includes an **Entity Relationship Diagram (ER Diagram)** showing the relationships between customers, reservations, tables, orders, menu items, and payments.</span>
+
+<span class="s0">&gt; </span><span class="s1">📌 Add your ER diagram image here:</span>
+
+<span class="s0">```</span><span class="s2">markdown</span>
+<span class="s3">![ER Diagram](./ER-Diagram/restaurant-er-diagram.png)</span>
+<span class="s0">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">📁 Project Structure</span>
+
+<span class="s0">```</span><span class="s2">text</span>
+<span class="s3">Restaurant-Table-Reservation-and-Order-Management/</span>
+<span class="s3">│</span>
+<span class="s3">├── 📁 ER-Diagram/</span>
+<span class="s3">│   └── restaurant-er-diagram.png</span>
+<span class="s3">│</span>
+<span class="s3">├── 📁 SQL/</span>
+<span class="s3">│   ├── create_database.sql</span>
+<span class="s3">│   ├── create_tables.sql</span>
+<span class="s3">│   ├── insert_data.sql</span>
+<span class="s3">│   └── queries.sql</span>
+<span class="s3">│</span>
+<span class="s3">├── 📄 README.md</span>
+<span class="s3">└── 📄 LICENSE</span>
+<span class="s0">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">🚀 Getting Started</span>
+
+<span class="s0">### </span><span class="s1">1️⃣ Clone the Repository</span>
+
+<span class="s0">```</span><span class="s2">bash</span>
+<span class="s3">git clone https://github.com/your-username/Restaurant-Table-Reservation-and-Order-Management.git</span>
+<span class="s0">```</span>
+
+<span class="s0">### </span><span class="s1">2️⃣ Open MySQL</span>
+
+<span class="s1">Open **MySQL Workbench**, MySQL CLI, or another SQL client.</span>
+
+<span class="s0">### </span><span class="s1">3️⃣ Create the Database</span>
+
+<span class="s1">Run the database creation script:</span>
+
+<span class="s0">```</span><span class="s2">sql</span>
+<span class="s3">CREATE DATABASE restaurant_management;</span>
+<span class="s0">```</span>
+
+<span class="s0">### </span><span class="s1">4️⃣ Select the Database</span>
+
+<span class="s0">```</span><span class="s2">sql</span>
+<span class="s3">USE restaurant_management;</span>
+<span class="s0">```</span>
+
+<span class="s0">### </span><span class="s1">5️⃣ Run the SQL Files</span>
+
+<span class="s1">Execute the table creation, data insertion, and query scripts in the appropriate order.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">📊 Example Operations</span>
+
+<span class="s1">The database supports operations such as:</span>
+
+<span class="s0">```</span><span class="s2">sql</span>
+<span class="s3">-- View available tables</span>
+<span class="s3">SELECT *</span>
+<span class="s3">FROM RestaurantTable</span>
+<span class="s3">WHERE status = 'Available';</span>
+<span class="s0">```</span>
+
+<span class="s0">```</span><span class="s2">sql</span>
+<span class="s3">-- View customer reservations</span>
+<span class="s3">SELECT *</span>
+<span class="s3">FROM Reservation</span>
+<span class="s3">WHERE customer_id = 1;</span>
+<span class="s0">```</span>
+
+<span class="s0">```</span><span class="s2">sql</span>
+<span class="s3">-- View orders</span>
+<span class="s3">SELECT *</span>
+<span class="s3">FROM Orders;</span>
+<span class="s0">```</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">🎯 Project Objectives</span>
+
+<span class="s1">The main objectives of this project are:</span>
+
+<span class="s0">- </span><span class="s1">Understand **database design**</span>
+<span class="s0">- </span><span class="s1">Implement **relationships between entities**</span>
+<span class="s0">- </span><span class="s1">Practice **SQL queries**</span>
+<span class="s0">- </span><span class="s1">Learn **primary keys and foreign keys**</span>
+<span class="s0">- </span><span class="s1">Understand **normalization**</span>
+<span class="s0">- </span><span class="s1">Manage restaurant reservations and orders efficiently</span>
+<span class="s0">- </span><span class="s1">Design a real-world database management system</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">🔮 Future Improvements</span>
+
+<span class="s1">Some possible future improvements include:</span>
+
+<span class="s0">- </span><span class="s1">🌐 Web-based restaurant management interface</span>
+<span class="s0">- </span><span class="s1">📱 Mobile application</span>
+<span class="s0">- </span><span class="s1">🔐 User authentication</span>
+<span class="s0">- </span><span class="s1">💳 Online payment integration</span>
+<span class="s0">- </span><span class="s1">📧 Reservation confirmation emails</span>
+<span class="s0">- </span><span class="s1">📈 Restaurant analytics dashboard</span>
+<span class="s0">- </span><span class="s1">🔔 Real-time table availability</span>
+<span class="s0">- </span><span class="s1">🤖 AI-based food recommendations</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">👨‍💻 Contributors</span>
+
+<span class="s0">| </span><span class="s1">Name </span><span class="s0">| </span><span class="s1">Role </span><span class="s0">|</span>
+<span class="s0">|---|---|</span>
+<span class="s0">| </span><span class="s1">**Soham Pachakatte** </span><span class="s0">| </span><span class="s1">Developer </span><span class="s0">|</span>
+
+<span class="s1">Want to contribute? Feel free to **fork this repository**, make your changes, and submit a **Pull Request**.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">⭐ Support</span>
+
+<span class="s1">If you find this project useful, consider giving the repository a **⭐ Star**!</span>
+
+<span class="s0">---</span>
+
+<span class="s0">## </span><span class="s1">📄 License</span>
+
+<span class="s1">This project is created for **educational and academic purposes**.</span>
+
+<span class="s0">---</span>
+
+<span class="s0">### </span><span class="s1">🍽️ Restaurant Management Made Simple</span>
+
+<span class="s1">**Reserve • Order • Manage • Serve**</span>
+</pre>
+</body>
+</html>
