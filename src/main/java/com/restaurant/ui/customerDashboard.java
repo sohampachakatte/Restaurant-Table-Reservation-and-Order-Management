@@ -5,6 +5,7 @@ import com.restaurant.dao.OrderDAO;
 import com.restaurant.dao.PaymentDAO;
 import com.restaurant.dao.ReservationDAO;
 import com.restaurant.dao.RestaurantTableDAO;
+import com.restaurant.dao.RestaurantSettingsDAO;
 import com.restaurant.dao.UserAccountDAO;
 import com.restaurant.model.MenuItem;
 import com.restaurant.model.Reservation;
@@ -14,6 +15,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.File;
+import java.net.URL;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -43,6 +46,10 @@ public class customerDashboard extends JFrame {
     private final OrderDAO orderDAO = new OrderDAO();
     private final PaymentDAO paymentDAO = new PaymentDAO();
     private final UserAccountDAO userAccountDAO = new UserAccountDAO();
+    private final RestaurantSettingsDAO settingsDAO =
+            new RestaurantSettingsDAO();
+
+    private String mainImagePath;
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel pageContainer = new JPanel(cardLayout);
@@ -97,6 +104,7 @@ public class customerDashboard extends JFrame {
             customerId = userAccountDAO.getCustomerIdByEmail(customerEmail);
             menuItems = menuDAO.getAllMenuItems();
             availableTables = tableDAO.getAvailableTables();
+            mainImagePath = settingsDAO.getMainImagePath();
             refreshOrderTableBox();
 
         } catch (SQLException exception) {
@@ -270,8 +278,11 @@ public class customerDashboard extends JFrame {
     }
 
     private JPanel createHeroPanel() {
-        JPanel hero = new JPanel(new BorderLayout());
-        hero.setBackground(new Color(250, 235, 206));
+        RoundedPanel hero = new RoundedPanel(
+                28,
+                new Color(250, 235, 206)
+        );
+        hero.setLayout(new BorderLayout(30, 0));
         hero.setMaximumSize(new Dimension(Integer.MAX_VALUE, 335));
         hero.setBorder(new EmptyBorder(35, 32, 35, 32));
 
@@ -317,9 +328,24 @@ public class customerDashboard extends JFrame {
         textPanel.add(Box.createVerticalStrut(22));
         textPanel.add(buttonPanel);
 
-        JLabel food = new JLabel("🍽");
-        food.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 125));
-        food.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel food = new JLabel("", SwingConstants.CENTER);
+        food.setPreferredSize(new Dimension(490, 260));
+        food.setOpaque(false);
+
+        ImageIcon mainImage = loadMenuImage(mainImagePath, 460, 260);
+
+        if (mainImage != null) {
+            food.setIcon(mainImage);
+        } else {
+            food.setText(
+                    "<html><div style='text-align:center;'>"
+                            + "<span style='font-size:70px;'>🍽</span><br>"
+                            + "<span style='font-size:13px;'>"
+                            + "Admin can add the restaurant banner image"
+                            + "</span></div></html>"
+            );
+            food.setForeground(new Color(125, 88, 45));
+        }
 
         hero.add(textPanel, BorderLayout.CENTER);
         hero.add(food, BorderLayout.EAST);
@@ -328,9 +354,9 @@ public class customerDashboard extends JFrame {
     }
 
     private JPanel createCategoryPanel() {
-        JPanel panel = new JPanel(new GridLayout(1, 6, 13, 0));
+        JPanel panel = new JPanel(new GridLayout(1, 6, 14, 0));
         panel.setOpaque(false);
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 82));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 86));
 
         addCategory(panel, "🍢", "Starters");
         addCategory(panel, "🍛", "Main Course");
@@ -343,20 +369,43 @@ public class customerDashboard extends JFrame {
     }
 
     private void addCategory(JPanel panel, String emoji, String name) {
-        JButton button = new JButton(
-                "<html><div style='text-align:center;'>"
-                        + "<span style='font-size:22px;'>" + emoji + "</span><br>"
-                        + name + "</div></html>"
-        );
+        RoundedPanel categoryCard = new RoundedPanel(18, CARD);
+        categoryCard.setLayout(new BorderLayout());
+        categoryCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        button.setFont(new Font("Arial", Font.BOLD, 13));
-        button.setBackground(CARD);
-        button.setForeground(BROWN);
-        button.setFocusPainted(false);
-        button.setBorder(new LineBorder(new Color(230, 218, 205), 1, true));
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        button.addActionListener(e -> showPage("MENU"));
-        panel.add(button);
+        JLabel icon = new JLabel(emoji, SwingConstants.CENTER);
+        icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 26));
+        icon.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel label = new JLabel(name, SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 13));
+        label.setForeground(BROWN);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        content.add(Box.createVerticalStrut(12));
+        content.add(icon);
+        content.add(Box.createVerticalStrut(5));
+        content.add(label);
+
+        categoryCard.add(content, BorderLayout.CENTER);
+
+        java.awt.event.MouseAdapter openMenu =
+                new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent event) {
+                        showPage("MENU");
+                    }
+                };
+
+        categoryCard.addMouseListener(openMenu);
+        icon.addMouseListener(openMenu);
+        label.addMouseListener(openMenu);
+
+        panel.add(categoryCard);
     }
 
     private JPanel createDishGrid(List<MenuItem> items) {
@@ -371,27 +420,18 @@ public class customerDashboard extends JFrame {
     }
 
     private JPanel createDishCard(MenuItem item) {
-        JPanel card = new JPanel(new BorderLayout(10, 10));
-        card.setBackground(CARD);
+        RoundedPanel card = new RoundedPanel(22, CARD);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBorder(new EmptyBorder(12, 12, 12, 12));
+        card.setPreferredSize(new Dimension(235, 280));
 
-        card.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(225, 213, 202), 1, true),
-                new EmptyBorder(13, 13, 13, 13)
-        ));
-
-        JLabel image = new JLabel(
-                getFoodEmoji(item.getCategory()),
-                SwingConstants.CENTER
-        );
-
-        image.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 45));
-        image.setOpaque(true);
-        image.setBackground(new Color(250, 241, 226));
-        image.setPreferredSize(new Dimension(0, 85));
+        JLabel photo = createMenuPhoto(item);
+        photo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel name = new JLabel(item.getItemName());
-        name.setFont(new Font("Arial", Font.BOLD, 14));
+        name.setFont(new Font("Arial", Font.BOLD, 15));
         name.setForeground(BROWN);
+        name.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel description = new JLabel(
                 "<html><span style='color:#7B6B60;'>"
@@ -399,42 +439,152 @@ public class customerDashboard extends JFrame {
                         + " · Prepared fresh by our chefs."
                         + "</span></html>"
         );
-
         description.setFont(new Font("Arial", Font.PLAIN, 11));
+        description.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel price = new JLabel(
                 "₹" + item.getPrice().stripTrailingZeros().toPlainString()
         );
+        price.setFont(new Font("Arial", Font.BOLD, 15));
+        price.setForeground(GOLD);
 
-        price.setFont(new Font("Arial", Font.BOLD, 14));
-        price.setForeground(new Color(175, 115, 20));
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        actionPanel.setOpaque(false);
+        refreshDishAction(item, actionPanel);
 
-        RoundedButton add = new RoundedButton("Add to Cart");
-        add.setBackground(new Color(75, 55, 43));
-        add.setForeground(Color.WHITE);
-        add.setFont(new Font("Arial", Font.BOLD, 11));
-        add.addActionListener(e -> addToCart(item, add));
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        bottomPanel.add(price, BorderLayout.WEST);
+        bottomPanel.add(actionPanel, BorderLayout.EAST);
 
-        JPanel details = new JPanel();
-        details.setOpaque(false);
-        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
-
-        details.add(name);
-        details.add(Box.createVerticalStrut(5));
-        details.add(description);
-        details.add(Box.createVerticalStrut(8));
-
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.setOpaque(false);
-        bottom.add(price, BorderLayout.WEST);
-        bottom.add(add, BorderLayout.EAST);
-
-        details.add(bottom);
-
-        card.add(image, BorderLayout.NORTH);
-        card.add(details, BorderLayout.CENTER);
-
+        card.add(photo);
+        card.add(Box.createVerticalStrut(10));
+        card.add(name);
+        card.add(Box.createVerticalStrut(4));
+        card.add(description);
+        card.add(Box.createVerticalGlue());
+        card.add(bottomPanel);
         return card;
+    }
+
+    private JLabel createMenuPhoto(MenuItem item) {
+        JLabel photo = new JLabel("", SwingConstants.CENTER);
+        photo.setPreferredSize(new Dimension(210, 125));
+        photo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 125));
+        photo.setOpaque(true);
+        photo.setBackground(new Color(250, 241, 226));
+        photo.setBorder(new LineBorder(new Color(239, 229, 217), 1, true));
+
+        ImageIcon icon = loadMenuImage(item.getImagePath(), 210, 125);
+        if (icon != null) {
+            photo.setIcon(icon);
+        } else {
+            photo.setText(getFoodEmoji(item.getCategory()));
+            photo.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
+        }
+        return photo;
+    }
+
+    private ImageIcon loadMenuImage(String imagePath, int width, int height) {
+        if (imagePath == null || imagePath.isBlank()
+                || imagePath.equalsIgnoreCase("No photo")) {
+            return null;
+        }
+
+        try {
+            Image image = null;
+            File imageFile = new File(
+                    System.getProperty("user.dir")
+                            + File.separator + "src"
+                            + File.separator + "main"
+                            + File.separator + "resources"
+                            + imagePath.replace("/", File.separator)
+            );
+
+            if (imageFile.exists()) {
+                image = new ImageIcon(imageFile.getAbsolutePath()).getImage();
+            }
+
+            if (image == null) {
+                URL imageUrl = getClass().getResource(imagePath);
+                if (imageUrl != null) {
+                    image = new ImageIcon(imageUrl).getImage();
+                }
+            }
+
+            if (image == null) {
+                return null;
+            }
+
+            return new ImageIcon(image.getScaledInstance(
+                    width, height, Image.SCALE_SMOOTH
+            ));
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    private void refreshDishAction(MenuItem item, JPanel actionPanel) {
+        actionPanel.removeAll();
+        int quantity = cart.getOrDefault(item, 0);
+
+        if (quantity == 0) {
+            RoundedButton addButton = new RoundedButton("Add to Cart");
+            addButton.setBackground(GREEN);
+            addButton.setForeground(Color.WHITE);
+            addButton.setFont(new Font("Arial", Font.BOLD, 11));
+            addButton.setPreferredSize(new Dimension(105, 30));
+
+            addButton.addActionListener(e -> {
+                cart.put(item, 1);
+                updateCartButton();
+                refreshCartPage();
+                refreshDishAction(item, actionPanel);
+                actionPanel.revalidate();
+                actionPanel.repaint();
+            });
+
+            actionPanel.add(addButton);
+            return;
+        }
+
+        JLabel addedLabel = new JLabel("✓ Added");
+        addedLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        addedLabel.setForeground(GREEN);
+
+        RoundedButton minus = createCartControl(
+                "−",
+                new Color(239, 247, 242)
+        );
+
+        RoundedButton plus = createCartControl("+", GREEN);
+        minus.setForeground(GREEN);
+        plus.setForeground(Color.WHITE);
+
+        JLabel quantityLabel = new JLabel(String.valueOf(quantity));
+        quantityLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        quantityLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        quantityLabel.setPreferredSize(new Dimension(20, 28));
+
+        minus.addActionListener(e -> {
+            changeQuantity(item, -1);
+            refreshDishAction(item, actionPanel);
+            actionPanel.revalidate();
+            actionPanel.repaint();
+        });
+
+        plus.addActionListener(e -> {
+            changeQuantity(item, 1);
+            refreshDishAction(item, actionPanel);
+            actionPanel.revalidate();
+            actionPanel.repaint();
+        });
+
+        actionPanel.add(addedLabel);
+        actionPanel.add(minus);
+        actionPanel.add(quantityLabel);
+        actionPanel.add(plus);
     }
 
     private JPanel createCartPage() {
@@ -1393,16 +1543,19 @@ public class customerDashboard extends JFrame {
             default -> BROWN;
         };
     }
-
     private String getFoodEmoji(String category) {
-        return switch (category.toUpperCase()) {
-            case "STARTERS" -> "🍢";
-            case "MAIN COURSE" -> "🍛";
+        if (category == null) {
+            return "🍽";
+        }
+
+        return switch (category.trim().toUpperCase()) {
+            case "STARTER", "STARTERS" -> "🍢";
+            case "MAIN COURSE", "MAINCOURSE" -> "🍛";
             case "PIZZA" -> "🍕";
-            case "BURGERS" -> "🍔";
+            case "BURGER", "BURGERS" -> "🍔";
             case "PASTA" -> "🍝";
-            case "DESSERT" -> "🍰";
-            case "BEVERAGES" -> "🥤";
+            case "DESSERT", "DESSERTS" -> "🍰";
+            case "BEVERAGE", "BEVERAGES", "DRINKS" -> "🥤";
             default -> "🍽";
         };
     }
@@ -1418,6 +1571,34 @@ public class customerDashboard extends JFrame {
                 title,
                 JOptionPane.INFORMATION_MESSAGE
         );
+    }
+
+    static class RoundedPanel extends JPanel {
+        private final int radius;
+        private final Color panelColor;
+
+        RoundedPanel(int radius, Color panelColor) {
+            this.radius = radius;
+            this.panelColor = panelColor;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+            g2.setColor(panelColor);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            g2.setColor(new Color(225, 213, 202));
+            g2.drawRoundRect(
+                    0, 0, getWidth() - 1, getHeight() - 1, radius, radius
+            );
+            g2.dispose();
+            super.paintComponent(graphics);
+        }
     }
 
     static class RoundedButton extends JButton {
@@ -1460,3 +1641,4 @@ public class customerDashboard extends JFrame {
         }
     }
 }
+
