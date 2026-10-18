@@ -5,6 +5,7 @@ import com.restaurant.dao.OrderDAO;
 import com.restaurant.dao.PaymentDAO;
 import com.restaurant.dao.ReservationDAO;
 import com.restaurant.dao.RestaurantTableDAO;
+import com.restaurant.dao.RestaurantSettingsDAO;
 import com.restaurant.db.DatabaseConnection;
 import com.restaurant.model.MenuItem;
 import com.restaurant.model.Reservation;
@@ -14,6 +15,12 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,13 +47,15 @@ public class AdminDashboard extends JFrame {
     private final ReservationDAO reservationDAO = new ReservationDAO();
     private final OrderDAO orderDAO = new OrderDAO();
     private final PaymentDAO paymentDAO = new PaymentDAO();
+    private final RestaurantSettingsDAO settingsDAO =
+            new RestaurantSettingsDAO();
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel contentPanel = new JPanel(cardLayout);
     private final JPanel dashboardPanel = new JPanel();
 
     private final DefaultTableModel menuModel = createModel(
-            "Item ID", "Item Name", "Price", "Category"
+            "Item ID", "Item Name", "Price", "Category", "Photo Path"
     );
 
     private final DefaultTableModel tableModel = createModel(
@@ -385,13 +394,21 @@ public class AdminDashboard extends JFrame {
                 Color.WHITE
         );
 
+        JButton mainImageButton = new RoundedButton(
+                "Set Main Banner Image",
+                BLUE,
+                Color.WHITE
+        );
+
         addButton.addActionListener(e -> showAddMenuDialog());
         editButton.addActionListener(e -> showEditMenuDialog());
         deleteButton.addActionListener(e -> deleteSelectedMenuItem());
+        mainImageButton.addActionListener(e -> showMainImageDialog());
 
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
+        buttonPanel.add(mainImageButton);
 
         page.add(buttonPanel);
         page.add(Box.createVerticalStrut(18));
@@ -413,15 +430,17 @@ public class AdminDashboard extends JFrame {
                         "₹" + item.getPrice()
                                 .stripTrailingZeros()
                                 .toPlainString(),
-                        item.getCategory()
+                        item.getCategory(),
+                        item.getImagePath() == null
+                                ? "No photo"
+                                : item.getImagePath()
                 });
             }
 
         } catch (SQLException exception) {
             showMessage(
                     "Menu Error",
-                    "Could not load menu.\n"
-                            + exception.getMessage(),
+                    "Could not load menu.\n" + exception.getMessage(),
                     true
             );
         }
@@ -431,49 +450,68 @@ public class AdminDashboard extends JFrame {
         JTextField itemNameField = new JTextField();
         JTextField priceField = new JTextField();
         JTextField categoryField = new JTextField();
+        JTextField photoPathField = new JTextField();
+        photoPathField.setEditable(false);
+
+        JButton choosePhotoButton = new RoundedButton(
+                "Choose Food Photo", BLUE, Color.WHITE
+        );
+
+        choosePhotoButton.addActionListener(e -> {
+            String imagePath = selectAndSaveImage("menu");
+            if (imagePath != null) {
+                photoPathField.setText(imagePath);
+            }
+        });
+
+        JPanel photoPanel = new JPanel(new BorderLayout(8, 0));
+        photoPanel.setOpaque(false);
+        photoPanel.add(photoPathField, BorderLayout.CENTER);
+        photoPanel.add(choosePhotoButton, BorderLayout.EAST);
 
         Object[] form = {
                 "Item name:", itemNameField,
                 "Price:", priceField,
-                "Category:", categoryField
+                "Category:", categoryField,
+                "Food photo:", photoPanel
         };
 
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                form,
-                "Add Menu Item",
-                JOptionPane.OK_CANCEL_OPTION
-        );
-
-        if (result != JOptionPane.OK_OPTION) {
+        if (JOptionPane.showConfirmDialog(
+                this, form, "Add Menu Item",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        ) != JOptionPane.OK_OPTION) {
             return;
         }
 
         try {
             String itemName = itemNameField.getText().trim();
             String category = categoryField.getText().trim();
-            BigDecimal price = new BigDecimal(
-                    priceField.getText().trim()
-            );
 
-            if (itemName.isEmpty() || category.isEmpty()) {
+            if (itemName.isEmpty() || category.isEmpty()
+                    || priceField.getText().trim().isEmpty()) {
                 showMessage(
                         "Validation Error",
-                        "Item name and category are required.",
+                        "Item name, price, and category are required.",
                         true
                 );
-
                 return;
             }
 
-            menuDAO.addMenuItem(itemName, price, category);
+            menuDAO.addMenuItem(
+                    itemName,
+                    new BigDecimal(priceField.getText().trim()),
+                    category,
+                    photoPathField.getText().trim().isEmpty()
+                            ? null
+                            : photoPathField.getText().trim()
+            );
 
             showMessage(
                     "Menu Updated",
                     "Menu item added successfully.",
                     false
             );
-
             refreshMenuTable();
 
         } catch (Exception exception) {
@@ -490,44 +528,54 @@ public class AdminDashboard extends JFrame {
         int row = menuTable.getSelectedRow();
 
         if (row == -1) {
-            showMessage(
-                    "Select Item",
-                    "Select a menu item first.",
-                    true
-            );
-
+            showMessage("Select Item", "Select a menu item first.", true);
             return;
         }
 
         int itemId = (Integer) menuModel.getValueAt(row, 0);
-
         JTextField nameField = new JTextField(
                 String.valueOf(menuModel.getValueAt(row, 1))
         );
-
         JTextField priceField = new JTextField(
-                String.valueOf(menuModel.getValueAt(row, 2))
-                        .replace("₹", "")
+                String.valueOf(menuModel.getValueAt(row, 2)).replace("₹", "")
         );
-
         JTextField categoryField = new JTextField(
                 String.valueOf(menuModel.getValueAt(row, 3))
         );
+        JTextField photoPathField = new JTextField(
+                String.valueOf(menuModel.getValueAt(row, 4))
+                        .replace("No photo", "")
+        );
+        photoPathField.setEditable(false);
+
+        JButton choosePhotoButton = new RoundedButton(
+                "Change Photo", BLUE, Color.WHITE
+        );
+
+        choosePhotoButton.addActionListener(e -> {
+            String imagePath = selectAndSaveImage("menu");
+            if (imagePath != null) {
+                photoPathField.setText(imagePath);
+            }
+        });
+
+        JPanel photoPanel = new JPanel(new BorderLayout(8, 0));
+        photoPanel.setOpaque(false);
+        photoPanel.add(photoPathField, BorderLayout.CENTER);
+        photoPanel.add(choosePhotoButton, BorderLayout.EAST);
 
         Object[] form = {
                 "Item name:", nameField,
                 "Price:", priceField,
-                "Category:", categoryField
+                "Category:", categoryField,
+                "Food photo:", photoPanel
         };
 
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                form,
-                "Edit Menu Item",
-                JOptionPane.OK_CANCEL_OPTION
-        );
-
-        if (result != JOptionPane.OK_OPTION) {
+        if (JOptionPane.showConfirmDialog(
+                this, form, "Edit Menu Item",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        ) != JOptionPane.OK_OPTION) {
             return;
         }
 
@@ -536,7 +584,10 @@ public class AdminDashboard extends JFrame {
                     itemId,
                     nameField.getText().trim(),
                     new BigDecimal(priceField.getText().trim()),
-                    categoryField.getText().trim()
+                    categoryField.getText().trim(),
+                    photoPathField.getText().trim().isEmpty()
+                            ? null
+                            : photoPathField.getText().trim()
             );
 
             showMessage(
@@ -544,7 +595,6 @@ public class AdminDashboard extends JFrame {
                     "Menu item updated successfully.",
                     false
             );
-
             refreshMenuTable();
 
         } catch (Exception exception) {
@@ -601,6 +651,129 @@ public class AdminDashboard extends JFrame {
                             + exception.getMessage(),
                     true
             );
+        }
+    }
+
+    private void showMainImageDialog() {
+        JTextField imagePathField = new JTextField();
+        imagePathField.setEditable(false);
+
+        try {
+            String savedPath = settingsDAO.getMainImagePath();
+            if (savedPath != null) {
+                imagePathField.setText(savedPath);
+            }
+        } catch (SQLException ignored) {
+            // The user can still choose a new image.
+        }
+
+        JButton chooseButton = new RoundedButton(
+                "Choose Main Image", BLUE, Color.WHITE
+        );
+
+        chooseButton.addActionListener(e -> {
+            String imagePath = selectAndSaveImage("banner");
+            if (imagePath != null) {
+                imagePathField.setText(imagePath);
+            }
+        });
+
+        JPanel imagePanel = new JPanel(new BorderLayout(8, 0));
+        imagePanel.setOpaque(false);
+        imagePanel.add(imagePathField, BorderLayout.CENTER);
+        imagePanel.add(chooseButton, BorderLayout.EAST);
+
+        Object[] form = {
+                "Main customer banner image:", imagePanel
+        };
+
+        if (JOptionPane.showConfirmDialog(
+                this,
+                form,
+                "Set Main Banner Image",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        ) != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        if (imagePathField.getText().trim().isEmpty()) {
+            showMessage(
+                    "Select Image",
+                    "Choose a restaurant banner image first.",
+                    true
+            );
+            return;
+        }
+
+        try {
+            settingsDAO.saveMainImagePath(
+                    imagePathField.getText().trim()
+            );
+
+            showMessage(
+                    "Banner Updated",
+                    "The customer home page will show this image next time it opens.",
+                    false
+            );
+
+        } catch (SQLException exception) {
+            showMessage(
+                    "Banner Error",
+                    "Could not save the main image.\n"
+                            + exception.getMessage(),
+                    true
+            );
+        }
+    }
+
+    private String selectAndSaveImage(String folderName) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Choose Restaurant Image");
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                "Image Files", "jpg", "jpeg", "png", "webp"
+        ));
+
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+
+        File selectedFile = chooser.getSelectedFile();
+
+        try {
+            String fileName = selectedFile.getName();
+            String extension = "";
+            int dot = fileName.lastIndexOf(".");
+
+            if (dot >= 0) {
+                extension = fileName.substring(dot);
+            }
+
+            Path folder = Path.of(
+                    "src", "main", "resources", "images", folderName
+            );
+
+            Files.createDirectories(folder);
+
+            String newFileName = UUID.randomUUID() + extension;
+            Path target = folder.resolve(newFileName);
+
+            Files.copy(
+                    selectedFile.toPath(),
+                    target,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+
+            return "/images/" + folderName + "/" + newFileName;
+
+        } catch (IOException exception) {
+            showMessage(
+                    "Image Error",
+                    "Could not save the selected image.\n"
+                            + exception.getMessage(),
+                    true
+            );
+            return null;
         }
     }
 
@@ -1227,3 +1400,4 @@ public class AdminDashboard extends JFrame {
         }
     }
 }
+

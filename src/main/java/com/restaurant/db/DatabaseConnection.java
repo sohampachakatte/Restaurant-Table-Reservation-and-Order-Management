@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConnection {
 
     private static final String URL =
-            "jdbc:mysql://127.0.0.1:3306/restaurantdb";
+            "jdbc:mysql://127.0.0.1:3306/RestaurantDB";
 
     private static final String USERNAME = "root";
 

@@ -5,6 +5,7 @@ import com.restaurant.dao.OrderDAO;
 import com.restaurant.dao.PaymentDAO;
 import com.restaurant.dao.ReservationDAO;
 import com.restaurant.dao.RestaurantTableDAO;
+import com.restaurant.dao.RestaurantSettingsDAO;
 import com.restaurant.dao.UserAccountDAO;
 import com.restaurant.model.MenuItem;
 import com.restaurant.model.Reservation;
@@ -14,6 +15,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
+import java.io.File;
+import java.net.URL;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -43,6 +47,10 @@ public class customerDashboard extends JFrame {
     private final OrderDAO orderDAO = new OrderDAO();
     private final PaymentDAO paymentDAO = new PaymentDAO();
     private final UserAccountDAO userAccountDAO = new UserAccountDAO();
+    private final RestaurantSettingsDAO settingsDAO =
+            new RestaurantSettingsDAO();
+
+    private String mainImagePath;
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel pageContainer = new JPanel(cardLayout);
@@ -58,6 +66,7 @@ public class customerDashboard extends JFrame {
     private final JButton cartButton = new JButton("🛒 Cart (0)");
     private final JPanel cartRowsPanel = new JPanel();
     private final JPanel ordersPanel = new JPanel();
+    private final JPanel orderDetailsPanel = new JPanel();
     private final JPanel reservationsPanel = new JPanel();
     private final JPanel reservationGrid = new JPanel();
 
@@ -97,6 +106,7 @@ public class customerDashboard extends JFrame {
             customerId = userAccountDAO.getCustomerIdByEmail(customerEmail);
             menuItems = menuDAO.getAllMenuItems();
             availableTables = tableDAO.getAvailableTables();
+            mainImagePath = settingsDAO.getMainImagePath();
             refreshOrderTableBox();
 
         } catch (SQLException exception) {
@@ -233,7 +243,7 @@ public class customerDashboard extends JFrame {
         int itemCount = Math.min(4, menuItems.size());
 
         if (itemCount > 0) {
-            page.add(createDishGrid(menuItems.subList(0, itemCount)));
+            page.add(createPopularDishGrid(menuItems.subList(0, itemCount)));
         } else {
             page.add(new JLabel("No menu items are available yet."));
         }
@@ -270,28 +280,41 @@ public class customerDashboard extends JFrame {
     }
 
     private JPanel createHeroPanel() {
-        JPanel hero = new JPanel(new BorderLayout());
-        hero.setBackground(new Color(250, 235, 206));
+        ImageIcon mainImage = loadMenuImage(mainImagePath, 1800, 720);
+
+        HeroBannerPanel hero = new HeroBannerPanel(
+                mainImage == null ? null : mainImage.getImage(),
+                28
+        );
+        hero.setLayout(new BorderLayout());
         hero.setMaximumSize(new Dimension(Integer.MAX_VALUE, 335));
         hero.setBorder(new EmptyBorder(35, 32, 35, 32));
 
         JPanel textPanel = new JPanel();
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel heading = new JLabel(
-                "<html>Exceptional Food.<br>Unforgettable<br>Moments.</html>"
+                "<html>Exceptional Food.<br>Unforgettable<br>Moments.</html>" +
+                "<html><div style='text-align:left;'>"
+                        + "Exceptional Food.<br>Unforgettable<br>Moments."
+                        + "</div></html>"
         );
 
         heading.setFont(new Font("Georgia", Font.BOLD, 37));
-        heading.setForeground(BROWN);
+        heading.setForeground(Color.WHITE);
+        heading.setAlignmentX(Component.LEFT_ALIGNMENT);
+        heading.setHorizontalAlignment(SwingConstants.LEFT);
 
         JLabel subtitle = new JLabel(
                 "Reserve your table and discover dishes prepared with passion."
         );
 
         subtitle.setFont(new Font("Arial", Font.PLAIN, 14));
-        subtitle.setForeground(new Color(100, 70, 35));
+        subtitle.setForeground(new Color(255, 247, 235));
+        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subtitle.setHorizontalAlignment(SwingConstants.LEFT);
 
         RoundedButton reserve = new RoundedButton("Reserve a Table");
         reserve.setBackground(GOLD);
@@ -308,6 +331,8 @@ public class customerDashboard extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         buttonPanel.setOpaque(false);
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
         buttonPanel.add(reserve);
         buttonPanel.add(explore);
 
@@ -317,20 +342,16 @@ public class customerDashboard extends JFrame {
         textPanel.add(Box.createVerticalStrut(22));
         textPanel.add(buttonPanel);
 
-        JLabel food = new JLabel("🍽");
-        food.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 125));
-        food.setHorizontalAlignment(SwingConstants.CENTER);
-
-        hero.add(textPanel, BorderLayout.CENTER);
-        hero.add(food, BorderLayout.EAST);
+        hero.add(textPanel, BorderLayout.WEST);
 
         return hero;
     }
 
     private JPanel createCategoryPanel() {
-        JPanel panel = new JPanel(new GridLayout(1, 6, 13, 0));
+        JPanel panel = new JPanel(new GridLayout(1, 6, 18, 0));
         panel.setOpaque(false);
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 82));
+        panel.setPreferredSize(new Dimension(0, 130));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
 
         addCategory(panel, "🍢", "Starters");
         addCategory(panel, "🍛", "Main Course");
@@ -343,25 +364,80 @@ public class customerDashboard extends JFrame {
     }
 
     private void addCategory(JPanel panel, String emoji, String name) {
-        JButton button = new JButton(
-                "<html><div style='text-align:center;'>"
-                        + "<span style='font-size:22px;'>" + emoji + "</span><br>"
-                        + name + "</div></html>"
-        );
+        RoundedPanel categoryCard = new RoundedPanel(18, CARD);
+        categoryCard.setLayout(new GridBagLayout());
+        categoryCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        button.setFont(new Font("Arial", Font.BOLD, 13));
-        button.setBackground(CARD);
-        button.setForeground(BROWN);
-        button.setFocusPainted(false);
-        button.setBorder(new LineBorder(new Color(230, 218, 205), 1, true));
+        JPanel content = new JPanel(new GridBagLayout());
+        content.setOpaque(false);
+        content.setPreferredSize(new Dimension(150, 100));
 
-        button.addActionListener(e -> showPage("MENU"));
-        panel.add(button);
+        GridBagConstraints contentConstraints = new GridBagConstraints();
+        contentConstraints.gridx = 0;
+        contentConstraints.anchor = GridBagConstraints.CENTER;
+
+        JLabel icon = new JLabel(emoji, SwingConstants.CENTER);
+        icon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 38));
+        icon.setPreferredSize(new Dimension(75, 58));
+        icon.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        JLabel label = new JLabel(name, SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 16));
+        label.setForeground(BROWN);
+
+        contentConstraints.gridy = 0;
+        contentConstraints.insets = new Insets(6, 0, 7, 0);
+        content.add(icon, contentConstraints);
+
+        contentConstraints.gridy = 1;
+        contentConstraints.insets = new Insets(0, 0, 0, 0);
+        content.add(label, contentConstraints);
+
+        GridBagConstraints cardConstraints = new GridBagConstraints();
+        cardConstraints.gridx = 0;
+        cardConstraints.gridy = 0;
+        cardConstraints.weightx = 1.0;
+        cardConstraints.weighty = 1.0;
+        cardConstraints.anchor = GridBagConstraints.CENTER;
+        categoryCard.add(content, cardConstraints);
+
+        java.awt.event.MouseAdapter openMenu =
+                new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent event) {
+                        showPage("MENU");
+                    }
+                };
+
+        categoryCard.addMouseListener(openMenu);
+        icon.addMouseListener(openMenu);
+        label.addMouseListener(openMenu);
+
+        panel.add(categoryCard);
     }
 
     private JPanel createDishGrid(List<MenuItem> items) {
-        JPanel grid = new JPanel(new GridLayout(0, 4, 15, 15));
+        // Four fixed columns. Additional dishes go to the next row.
+        JPanel grid = new JPanel(new GridBagLayout());
         grid.setOpaque(false);
+        grid.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        for (int index = 0; index < items.size(); index++) {
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.gridx = index % 4;
+            constraints.gridy = index / 4;
+            constraints.anchor = GridBagConstraints.NORTHWEST;
+            constraints.insets = new Insets(0, 0, 15, 15);
+            grid.add(createDishCard(items.get(index)), constraints);
+        }
+
+        return grid;
+    }
+
+    private JPanel createPopularDishGrid(List<MenuItem> items) {
+        JPanel grid = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        grid.setOpaque(false);
+        grid.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         for (MenuItem item : items) {
             grid.add(createDishCard(item));
@@ -371,70 +447,177 @@ public class customerDashboard extends JFrame {
     }
 
     private JPanel createDishCard(MenuItem item) {
-        JPanel card = new JPanel(new BorderLayout(10, 10));
-        card.setBackground(CARD);
+        RoundedPanel card = new RoundedPanel(22, CARD);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBorder(new EmptyBorder(0, 0, 12, 0));
+        card.setPreferredSize(new Dimension(235, 230));
+        card.setMinimumSize(new Dimension(235, 230));
+        card.setMaximumSize(new Dimension(235, 230));
 
-        card.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(225, 213, 202), 1, true),
-                new EmptyBorder(13, 13, 13, 13)
-        ));
-
-        JLabel image = new JLabel(
-                getFoodEmoji(item.getCategory()),
-                SwingConstants.CENTER
-        );
-
-        image.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 45));
-        image.setOpaque(true);
-        image.setBackground(new Color(250, 241, 226));
-        image.setPreferredSize(new Dimension(0, 85));
+        JComponent photo = createMenuPhoto(item);
+        photo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel name = new JLabel(item.getItemName());
-        name.setFont(new Font("Arial", Font.BOLD, 14));
+        name.setFont(new Font("Arial", Font.BOLD, 15));
         name.setForeground(BROWN);
+        name.setAlignmentX(Component.CENTER_ALIGNMENT);
+        name.setHorizontalAlignment(SwingConstants.CENTER);
+        name.setBorder(new EmptyBorder(0, 12, 0, 12));
 
         JLabel description = new JLabel(
-                "<html><span style='color:#7B6B60;'>"
+                "<html><div style='text-align:center; width:205px; color:#7B6B60;'>"
                         + item.getCategory()
                         + " · Prepared fresh by our chefs."
-                        + "</span></html>"
+                        + "</div></html>"
         );
-
         description.setFont(new Font("Arial", Font.PLAIN, 11));
+        description.setAlignmentX(Component.CENTER_ALIGNMENT);
+        description.setHorizontalAlignment(SwingConstants.CENTER);
 
         JLabel price = new JLabel(
                 "₹" + item.getPrice().stripTrailingZeros().toPlainString()
         );
+        price.setFont(new Font("Arial", Font.BOLD, 15));
+        price.setForeground(GOLD);
 
-        price.setFont(new Font("Arial", Font.BOLD, 14));
-        price.setForeground(new Color(175, 115, 20));
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        actionPanel.setOpaque(false);
+        refreshDishAction(item, actionPanel);
 
-        RoundedButton add = new RoundedButton("Add to Cart");
-        add.setBackground(new Color(75, 55, 43));
-        add.setForeground(Color.WHITE);
-        add.setFont(new Font("Arial", Font.BOLD, 11));
-        add.addActionListener(e -> addToCart(item, add));
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 18, 0));
+        bottomPanel.setOpaque(false);
+        bottomPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        bottomPanel.add(price);
+        bottomPanel.add(actionPanel);
 
-        JPanel details = new JPanel();
-        details.setOpaque(false);
-        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
-
-        details.add(name);
-        details.add(Box.createVerticalStrut(5));
-        details.add(description);
-        details.add(Box.createVerticalStrut(8));
-
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.setOpaque(false);
-        bottom.add(price, BorderLayout.WEST);
-        bottom.add(add, BorderLayout.EAST);
-
-        details.add(bottom);
-
-        card.add(image, BorderLayout.NORTH);
-        card.add(details, BorderLayout.CENTER);
-
+        card.add(photo);
+        card.add(Box.createVerticalStrut(10));
+        card.add(name);
+        card.add(Box.createVerticalStrut(4));
+        card.add(description);
+        card.add(Box.createVerticalStrut(12));
+        card.add(bottomPanel);
         return card;
+    }
+
+    private JComponent createMenuPhoto(MenuItem item) {
+        ImageIcon icon = loadMenuImage(item.getImagePath(), 700, 420);
+        if (icon != null) {
+            CoverImagePanel photo = new CoverImagePanel(icon.getImage(), 22);
+            photo.setPreferredSize(new Dimension(235, 125));
+            photo.setMaximumSize(new Dimension(235, 125));
+            return photo;
+        }
+
+        RoundedPanel fallback = new RoundedPanel(22, new Color(250, 241, 226));
+        fallback.setLayout(new GridBagLayout());
+        fallback.setPreferredSize(new Dimension(235, 125));
+        fallback.setMaximumSize(new Dimension(235, 125));
+        JLabel foodEmoji = new JLabel(getFoodEmoji(item.getCategory()));
+        foodEmoji.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
+        fallback.add(foodEmoji);
+        return fallback;
+    }
+
+    private ImageIcon loadMenuImage(String imagePath, int width, int height) {
+        if (imagePath == null || imagePath.isBlank()
+                || imagePath.equalsIgnoreCase("No photo")) {
+            return null;
+        }
+
+        try {
+            Image image = null;
+            File imageFile = new File(
+                    System.getProperty("user.dir")
+                            + File.separator + "src"
+                            + File.separator + "main"
+                            + File.separator + "resources"
+                            + imagePath.replace("/", File.separator)
+            );
+
+            if (imageFile.exists()) {
+                image = new ImageIcon(imageFile.getAbsolutePath()).getImage();
+            }
+
+            if (image == null) {
+                URL imageUrl = getClass().getResource(imagePath);
+                if (imageUrl != null) {
+                    image = new ImageIcon(imageUrl).getImage();
+                }
+            }
+
+            if (image == null) {
+                return null;
+            }
+
+            return new ImageIcon(image.getScaledInstance(
+                    width, height, Image.SCALE_SMOOTH
+            ));
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    private void refreshDishAction(MenuItem item, JPanel actionPanel) {
+        actionPanel.removeAll();
+        int quantity = cart.getOrDefault(item, 0);
+
+        if (quantity == 0) {
+            RoundedButton addButton = new RoundedButton("Add to Cart");
+            addButton.setBackground(GREEN);
+            addButton.setForeground(Color.WHITE);
+            addButton.setFont(new Font("Arial", Font.BOLD, 11));
+            addButton.setPreferredSize(new Dimension(105, 30));
+
+            addButton.addActionListener(e -> {
+                cart.put(item, 1);
+                updateCartButton();
+                refreshCartPage();
+                refreshDishAction(item, actionPanel);
+                actionPanel.revalidate();
+                actionPanel.repaint();
+            });
+
+            actionPanel.add(addButton);
+            return;
+        }
+
+        JLabel addedLabel = new JLabel("✓ Added");
+        addedLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        addedLabel.setForeground(GREEN);
+
+        RoundedButton minus = createCartControl(
+                "−",
+                new Color(239, 247, 242)
+        );
+
+        RoundedButton plus = createCartControl("+", GREEN);
+        minus.setForeground(GREEN);
+        plus.setForeground(Color.WHITE);
+
+        JLabel quantityLabel = new JLabel(String.valueOf(quantity));
+        quantityLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        quantityLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        quantityLabel.setPreferredSize(new Dimension(20, 28));
+
+        minus.addActionListener(e -> {
+            changeQuantity(item, -1);
+            refreshDishAction(item, actionPanel);
+            actionPanel.revalidate();
+            actionPanel.repaint();
+        });
+
+        plus.addActionListener(e -> {
+            changeQuantity(item, 1);
+            refreshDishAction(item, actionPanel);
+            actionPanel.revalidate();
+            actionPanel.repaint();
+        });
+
+        actionPanel.add(addedLabel);
+        actionPanel.add(minus);
+        actionPanel.add(quantityLabel);
+        actionPanel.add(plus);
     }
 
     private JPanel createCartPage() {
@@ -676,12 +859,17 @@ public class customerDashboard extends JFrame {
     private JComponent createOrdersPage() {
         JPanel page = createPagePanel();
 
-        page.add(sectionTitle("My Orders"));
-        page.add(Box.createVerticalStrut(15));
+        JLabel title = new JLabel("My Orders", SwingConstants.CENTER);
+        title.setFont(new Font("Georgia", Font.BOLD, 26));
+        title.setForeground(BROWN);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
 
         ordersPanel.setOpaque(false);
         ordersPanel.setLayout(new BoxLayout(ordersPanel, BoxLayout.Y_AXIS));
 
+        page.add(title);
+        page.add(Box.createVerticalStrut(10));
         page.add(ordersPanel);
         refreshOrdersPanel();
 
@@ -716,6 +904,12 @@ public class customerDashboard extends JFrame {
     private JScrollPane wrapInScrollPane(JPanel panel) {
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+        );
+        scrollPane.setVerticalScrollBarPolicy(
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
+        );
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.getViewport().setBackground(BG);
         return scrollPane;
@@ -1046,18 +1240,21 @@ public class customerDashboard extends JFrame {
                     orderDAO.getOrdersByCustomerId(customerId);
 
             if (orders.isEmpty()) {
-                ordersPanel.add(new JLabel("No orders placed yet."));
-            }
-
-            for (OrderDAO.OrderDetails order : orders) {
-                ordersPanel.add(createOrderCard(order));
-                ordersPanel.add(Box.createVerticalStrut(12));
+                JLabel empty = new JLabel("No orders placed yet.");
+                empty.setForeground(new Color(120, 100, 85));
+                ordersPanel.add(empty);
+            } else {
+                for (OrderDAO.OrderDetails order : orders) {
+                    ordersPanel.add(createOrderCard(order));
+                    ordersPanel.add(Box.createVerticalStrut(8));
+                }
             }
 
         } catch (SQLException exception) {
-            ordersPanel.add(new JLabel(
+            JLabel error = new JLabel(
                     "Could not load orders: " + exception.getMessage()
-            ));
+            );
+            ordersPanel.add(error);
         }
 
         ordersPanel.revalidate();
@@ -1065,97 +1262,279 @@ public class customerDashboard extends JFrame {
     }
 
     private JPanel createOrderCard(OrderDAO.OrderDetails order) {
-        JPanel card = new JPanel(new BorderLayout(15, 8));
-        card.setBackground(CARD);
+        RoundedPanel card = new RoundedPanel(22, CARD);
+        card.setLayout(new BorderLayout(18, 0));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 185));
+        card.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.setBorder(new EmptyBorder(14, 18, 14, 18));
 
-        card.setMaximumSize(
-                new Dimension(Integer.MAX_VALUE, 130)
-        );
+        JPanel orderedDishes = new JPanel();
+        orderedDishes.setOpaque(false);
+        orderedDishes.setLayout(new BoxLayout(orderedDishes, BoxLayout.Y_AXIS));
 
-        card.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(225, 213, 202), 1, true),
-                new EmptyBorder(14, 16, 14, 16)
-        ));
+        JLabel title = new JLabel("Order #" + order.getOrderId());
+        title.setFont(new Font("Georgia", Font.BOLD, 19));
+        title.setForeground(BROWN);
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel status = new JLabel("Status: " + order.getStatus());
+        status.setFont(new Font("Arial", Font.BOLD, 12));
+        status.setForeground(getStatusColor(order.getStatus()));
+        status.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         String tableText = order.getTableId() == null
                 ? "Takeaway"
-                : "Table " + order.getTableId()
+                : "Dine-in · Table " + order.getTableId()
                 + " · " + order.getTableLocation();
 
-        JLabel details = new JLabel(
-                "<html><b>Order #" + order.getOrderId() + "</b><br>"
-                        + "<span style='color:#7B6B60;'>"
-                        + tableText + "<br>"
-                        + order.getOrderItems() + "<br>"
-                        + "Staff: " + order.getStaffName()
-                        + "</span></html>"
+        JLabel orderInfo = new JLabel(tableText + " · " + order.getOrderDate());
+        orderInfo.setFont(new Font("Arial", Font.PLAIN, 12));
+        orderInfo.setForeground(new Color(120, 100, 85));
+        orderInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel dishesHeading = new JLabel("Ordered dishes");
+        dishesHeading.setFont(new Font("Arial", Font.BOLD, 13));
+        dishesHeading.setForeground(BROWN);
+        dishesHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel dishes = new JLabel(
+                "<html><div style='width:520px; color:#644B38;'>"
+                        + order.getOrderItems().replace(", ", "<br>")
+                        + "</div></html>"
         );
+        dishes.setFont(new Font("Arial", Font.PLAIN, 13));
+        dishes.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        details.setFont(new Font("Arial", Font.PLAIN, 13));
-        details.setForeground(BROWN);
+        orderedDishes.add(title);
+        orderedDishes.add(Box.createVerticalStrut(5));
+        orderedDishes.add(status);
+        orderedDishes.add(Box.createVerticalStrut(4));
+        orderedDishes.add(orderInfo);
+        orderedDishes.add(Box.createVerticalStrut(10));
+        orderedDishes.add(dishesHeading);
+        orderedDishes.add(Box.createVerticalStrut(6));
+        orderedDishes.add(dishes);
 
-        JPanel rightPanel = new JPanel();
-        rightPanel.setOpaque(false);
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        RoundedPanel bill = new RoundedPanel(18, new Color(250, 246, 239));
+        bill.setLayout(new BoxLayout(bill, BoxLayout.Y_AXIS));
+        bill.setPreferredSize(new Dimension(270, 0));
+        bill.setBorder(new EmptyBorder(13, 14, 13, 14));
 
-        JLabel amount = new JLabel(
-                "₹" + order.getTotalAmount()
-                        .stripTrailingZeros()
-                        .toPlainString()
+        JLabel billHeading = new JLabel("Bill Summary");
+        billHeading.setFont(new Font("Arial", Font.BOLD, 15));
+        billHeading.setForeground(BROWN);
+        billHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel totalLabel = new JLabel(
+                "Total Price  ₹" + order.getTotalAmount()
+                        .stripTrailingZeros().toPlainString()
         );
+        totalLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        totalLabel.setForeground(BROWN);
+        totalLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        amount.setFont(new Font("Arial", Font.BOLD, 15));
-        amount.setForeground(GOLD);
-        amount.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        RoundedButton payBill = new RoundedButton("Pay Bill");
+        payBill.setBackground(GREEN);
+        payBill.setForeground(Color.WHITE);
+        payBill.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        payBill.setAlignmentX(Component.LEFT_ALIGNMENT);
+        payBill.addActionListener(e -> payOrder(order));
 
-        JLabel status = new JLabel(order.getStatus());
-        status.setFont(new Font("Arial", Font.BOLD, 12));
-        status.setForeground(getStatusColor(order.getStatus()));
-        status.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        RoundedButton addExtraItems = new RoundedButton("Add Extra Items");
+        addExtraItems.setBackground(GOLD);
+        addExtraItems.setForeground(Color.WHITE);
+        addExtraItems.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        addExtraItems.setAlignmentX(Component.LEFT_ALIGNMENT);
+        addExtraItems.addActionListener(e -> showPage("MENU"));
 
-        rightPanel.add(amount);
-        rightPanel.add(Box.createVerticalStrut(6));
-        rightPanel.add(status);
-
-        try {
-            String paymentStatus =
-                    paymentDAO.getPaymentStatus(order.getOrderId());
-
-            if ("PAID".equals(paymentStatus)) {
-                JLabel paid = new JLabel("PAID ✓");
-                paid.setFont(new Font("Arial", Font.BOLD, 12));
-                paid.setForeground(GREEN);
-                paid.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-                rightPanel.add(Box.createVerticalStrut(6));
-                rightPanel.add(paid);
-
-            } else if (
-                    "SERVED".equals(order.getStatus())
-                            || "AWAITING_PAYMENT".equals(order.getStatus())
-            ) {
-                RoundedButton payButton =
-                        new RoundedButton("Pay Bill");
-
-                payButton.setBackground(GREEN);
-                payButton.setForeground(Color.WHITE);
-                payButton.setFont(new Font("Arial", Font.BOLD, 11));
-                payButton.setMaximumSize(new Dimension(105, 31));
-                payButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-                payButton.addActionListener(e -> payOrder(order));
-                rightPanel.add(Box.createVerticalStrut(8));
-                rightPanel.add(payButton);
-            }
-
-        } catch (SQLException ignored) {
-            // Payment status will reload next time customer opens My Orders.
+        if (!"SERVED".equals(order.getStatus())
+                && !"AWAITING_PAYMENT".equals(order.getStatus())) {
+            payBill.setEnabled(false);
+            payBill.setBackground(new Color(174, 174, 174));
+            payBill.setToolTipText("Payment is available after food is served.");
         }
 
-        card.add(details, BorderLayout.CENTER);
-        card.add(rightPanel, BorderLayout.EAST);
+        bill.add(billHeading);
+        bill.add(Box.createVerticalStrut(12));
+        bill.add(totalLabel);
+        bill.add(Box.createVerticalGlue());
+        bill.add(addExtraItems);
+        bill.add(Box.createVerticalStrut(8));
+        bill.add(payBill);
 
+        card.add(orderedDishes, BorderLayout.CENTER);
+        card.add(bill, BorderLayout.EAST);
         return card;
+    }
+
+    private JComponent createOrderFoodVisual(
+            OrderDAO.OrderDetails order,
+            int size
+    ) {
+        String items = order.getOrderItems() == null
+                ? "" : order.getOrderItems().toLowerCase();
+
+        for (MenuItem item : menuItems) {
+            if (items.contains(item.getItemName().toLowerCase())) {
+                ImageIcon icon = loadMenuImage(
+                        item.getImagePath(), size * 3, size * 3
+                );
+
+                if (icon != null) {
+                    CoverImagePanel photo = new CoverImagePanel(
+                            icon.getImage(), 18
+                    );
+                    photo.setPreferredSize(new Dimension(size, size));
+                    return photo;
+                }
+            }
+        }
+
+        RoundedPanel fallback = new RoundedPanel(18, new Color(250, 241, 226));
+        fallback.setLayout(new GridBagLayout());
+        fallback.setPreferredSize(new Dimension(size, size));
+
+        JLabel emoji = new JLabel(
+                getOrderEmoji(order.getOrderItems()), SwingConstants.CENTER
+        );
+        emoji.setFont(new Font("Segoe UI Emoji", Font.PLAIN, size / 2));
+        fallback.add(emoji);
+        return fallback;
+    }
+
+    private void showOrderDetails(OrderDAO.OrderDetails order) {
+        orderDetailsPanel.removeAll();
+
+        RoundedPanel detail = new RoundedPanel(26, CARD);
+        detail.setLayout(new GridBagLayout());
+        detail.setBorder(new EmptyBorder(24, 24, 24, 24));
+        detail.setPreferredSize(new Dimension(0, 350));
+        detail.setMaximumSize(new Dimension(Integer.MAX_VALUE, 350));
+        detail.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JComponent foodVisual = createOrderFoodVisual(order, 250);
+        foodVisual.setPreferredSize(new Dimension(250, 250));
+        foodVisual.setMinimumSize(new Dimension(250, 250));
+        foodVisual.setMaximumSize(new Dimension(250, 250));
+
+        JPanel information = new JPanel();
+        information.setOpaque(false);
+        information.setLayout(new BoxLayout(information, BoxLayout.Y_AXIS));
+
+        JLabel label = new JLabel("ORDER #" + order.getOrderId());
+        label.setFont(new Font("Arial", Font.BOLD, 12));
+        label.setForeground(GOLD);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel items = new JLabel(
+                "<html><div style='width:410px;'>"
+                        + order.getOrderItems() + "</div></html>"
+        );
+        items.setFont(new Font("Georgia", Font.BOLD, 25));
+        items.setForeground(BROWN);
+        items.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        String tableText = order.getTableId() == null
+                ? "Takeaway order"
+                : "Dine-in · Table " + order.getTableId()
+                + " · " + order.getTableLocation();
+
+        JLabel orderInfo = new JLabel(
+                tableText + " · " + order.getOrderDate()
+        );
+        orderInfo.setFont(new Font("Arial", Font.PLAIN, 13));
+        orderInfo.setForeground(new Color(120, 100, 85));
+        orderInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel status = new JLabel("Status: " + order.getStatus());
+        status.setFont(new Font("Arial", Font.BOLD, 13));
+        status.setForeground(getStatusColor(order.getStatus()));
+        status.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel total = new JLabel(
+                "Total Amount  ₹" + order.getTotalAmount()
+                        .stripTrailingZeros().toPlainString()
+        );
+        total.setFont(new Font("Arial", Font.BOLD, 18));
+        total.setForeground(BROWN);
+        total.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        information.add(label);
+        information.add(Box.createVerticalStrut(12));
+        information.add(items);
+        information.add(Box.createVerticalStrut(14));
+        information.add(orderInfo);
+        information.add(Box.createVerticalStrut(12));
+        information.add(status);
+        information.add(Box.createVerticalStrut(28));
+        information.add(total);
+
+        if ("SERVED".equals(order.getStatus())
+                || "AWAITING_PAYMENT".equals(order.getStatus())) {
+            RoundedButton payBill = new RoundedButton("Pay Bill");
+            payBill.setBackground(GREEN);
+            payBill.setForeground(Color.WHITE);
+            payBill.setMaximumSize(new Dimension(180, 40));
+            payBill.setAlignmentX(Component.LEFT_ALIGNMENT);
+            payBill.addActionListener(e -> payOrder(order));
+            information.add(Box.createVerticalStrut(18));
+            information.add(payBill);
+        }
+
+        GridBagConstraints visualConstraints = new GridBagConstraints();
+        visualConstraints.gridx = 0;
+        visualConstraints.gridy = 0;
+        visualConstraints.anchor = GridBagConstraints.CENTER;
+        visualConstraints.insets = new Insets(0, 0, 0, 28);
+        detail.add(foodVisual, visualConstraints);
+
+        GridBagConstraints infoConstraints = new GridBagConstraints();
+        infoConstraints.gridx = 1;
+        infoConstraints.gridy = 0;
+        infoConstraints.weightx = 1.0;
+        infoConstraints.fill = GridBagConstraints.HORIZONTAL;
+        infoConstraints.anchor = GridBagConstraints.WEST;
+        detail.add(information, infoConstraints);
+
+        orderDetailsPanel.add(detail);
+        orderDetailsPanel.add(Box.createVerticalGlue());
+        orderDetailsPanel.revalidate();
+        orderDetailsPanel.repaint();
+    }
+
+    private JComponent createEmptyOrderDetails() {
+        RoundedPanel empty = new RoundedPanel(26, CARD);
+        empty.setLayout(new GridBagLayout());
+        empty.setPreferredSize(new Dimension(0, 350));
+        empty.setMaximumSize(new Dimension(Integer.MAX_VALUE, 350));
+        empty.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel message = new JLabel(
+                "<html><div style='text-align:center;'>"
+                        + "<span style='font-size:46px;'>🍽</span><br><br>"
+                        + "Your placed order will appear here."
+                        + "</div></html>",
+                SwingConstants.CENTER
+        );
+        message.setForeground(new Color(120, 100, 85));
+        empty.add(message);
+        return empty;
+    }
+
+    private String getOrderEmoji(String orderItems) {
+        if (orderItems == null) {
+            return "🍽";
+        }
+
+        String text = orderItems.toUpperCase();
+
+        if (text.contains("PIZZA")) return "🍕";
+        if (text.contains("BURGER")) return "🍔";
+        if (text.contains("PASTA") || text.contains("NOODLE")) return "🍝";
+        if (text.contains("BIRYANI") || text.contains("RICE")) return "🍛";
+        if (text.contains("CAKE") || text.contains("DESSERT")) return "🍰";
+        if (text.contains("DRINK") || text.contains("JUICE")) return "🥤";
+        return "🍽";
     }
 
     private void payOrder(OrderDAO.OrderDetails order) {
@@ -1393,16 +1772,19 @@ public class customerDashboard extends JFrame {
             default -> BROWN;
         };
     }
-
     private String getFoodEmoji(String category) {
-        return switch (category.toUpperCase()) {
-            case "STARTERS" -> "🍢";
-            case "MAIN COURSE" -> "🍛";
+        if (category == null) {
+            return "🍽";
+        }
+
+        return switch (category.trim().toUpperCase()) {
+            case "STARTER", "STARTERS" -> "🍢";
+            case "MAIN COURSE", "MAINCOURSE" -> "🍛";
             case "PIZZA" -> "🍕";
-            case "BURGERS" -> "🍔";
+            case "BURGER", "BURGERS" -> "🍔";
             case "PASTA" -> "🍝";
-            case "DESSERT" -> "🍰";
-            case "BEVERAGES" -> "🥤";
+            case "DESSERT", "DESSERTS" -> "🍰";
+            case "BEVERAGE", "BEVERAGES", "DRINKS" -> "🥤";
             default -> "🍽";
         };
     }
@@ -1418,6 +1800,129 @@ public class customerDashboard extends JFrame {
                 title,
                 JOptionPane.INFORMATION_MESSAGE
         );
+    }
+
+    static class HeroBannerPanel extends JPanel {
+        private final Image image;
+        private final int radius;
+
+        HeroBannerPanel(Image image, int radius) {
+            this.image = image;
+            this.radius = radius;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            Shape clip = new RoundRectangle2D.Float(
+                    0, 0, getWidth(), getHeight(), radius, radius
+            );
+            g2.clip(clip);
+
+            if (image != null) {
+                int imageWidth = image.getWidth(this);
+                int imageHeight = image.getHeight(this);
+                if (imageWidth > 0 && imageHeight > 0) {
+                    double scale = Math.max(
+                            (double) getWidth() / imageWidth,
+                            (double) getHeight() / imageHeight
+                    );
+                    int drawWidth = (int) Math.ceil(imageWidth * scale);
+                    int drawHeight = (int) Math.ceil(imageHeight * scale);
+                    int x = (getWidth() - drawWidth) / 2;
+                    int y = (getHeight() - drawHeight) / 2;
+                    g2.drawImage(image, x, y, drawWidth, drawHeight, this);
+                }
+            } else {
+                g2.setColor(new Color(108, 69, 33));
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
+
+            // Dark transparent layer makes the white text readable.
+            g2.setColor(new Color(38, 20, 8, 145));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
+            g2.setColor(new Color(225, 213, 202));
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1,
+                    radius, radius);
+            g2.dispose();
+            super.paintComponent(graphics);
+        }
+    }
+
+    static class CoverImagePanel extends JPanel {
+        private final Image image;
+        private final int radius;
+
+        CoverImagePanel(Image image, int radius) {
+            this.image = image;
+            this.radius = radius;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            if (image == null || getWidth() <= 0 || getHeight() <= 0) {
+                return;
+            }
+
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2.clip(new RoundRectangle2D.Float(
+                    0, 0, getWidth(), getHeight(), radius, radius
+            ));
+
+            int imageWidth = image.getWidth(this);
+            int imageHeight = image.getHeight(this);
+            if (imageWidth > 0 && imageHeight > 0) {
+                double scale = Math.max(
+                        (double) getWidth() / imageWidth,
+                        (double) getHeight() / imageHeight
+                );
+                int drawWidth = (int) Math.ceil(imageWidth * scale);
+                int drawHeight = (int) Math.ceil(imageHeight * scale);
+                int x = (getWidth() - drawWidth) / 2;
+                int y = (getHeight() - drawHeight) / 2;
+                g2.drawImage(image, x, y, drawWidth, drawHeight, this);
+            }
+            g2.dispose();
+        }
+    }
+
+    static class RoundedPanel extends JPanel {
+        private final int radius;
+        private final Color panelColor;
+
+        RoundedPanel(int radius, Color panelColor) {
+            this.radius = radius;
+            this.panelColor = panelColor;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            Graphics2D g2 = (Graphics2D) graphics.create();
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+            g2.setColor(panelColor);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+            g2.setColor(new Color(225, 213, 202));
+            g2.drawRoundRect(
+                    0, 0, getWidth() - 1, getHeight() - 1, radius, radius
+            );
+            g2.dispose();
+            super.paintComponent(graphics);
+        }
     }
 
     static class RoundedButton extends JButton {
