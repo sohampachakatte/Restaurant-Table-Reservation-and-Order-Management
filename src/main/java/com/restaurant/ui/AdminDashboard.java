@@ -1159,9 +1159,269 @@ public class AdminDashboard extends JFrame {
 
         page.add(note);
         page.add(Box.createVerticalStrut(15));
+
+        JButton addStaffButton = new RoundedButton(
+                "+ Add Staff Account",
+                GREEN,
+                Color.WHITE
+        );
+        addStaffButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        addStaffButton.addActionListener(e -> showAddStaffDialog());
+
+        JButton deleteStaffButton = new RoundedButton(
+                "Delete Selected Staff",
+                RED,
+                Color.WHITE
+        );
+        deleteStaffButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        deleteStaffButton.addActionListener(e -> deleteSelectedStaff());
+
+        JPanel staffButtons = new JPanel(new FlowLayout(
+                FlowLayout.LEFT, 10, 0
+        ));
+        staffButtons.setOpaque(false);
+        staffButtons.setAlignmentX(Component.LEFT_ALIGNMENT);
+        page.add(addStaffButton);
+        staffButtons.add(addStaffButton);
+        staffButtons.add(deleteStaffButton);
+
+        page.add(staffButtons);
+        page.add(Box.createVerticalStrut(15));
         page.add(createTableScrollPane(userTable));
 
         return wrapInScrollPane(page);
+    }
+
+    private void showAddStaffDialog() {
+        JTextField nameField = new JTextField();
+        JTextField emailField = new JTextField();
+        JPasswordField passwordField = new JPasswordField();
+
+        Object[] form = {
+                "Staff full name:", nameField,
+                "Email:", emailField,
+                "Password:", passwordField
+        };
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                form,
+                "Add Staff Account",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String fullName = nameField.getText().trim();
+        String email = emailField.getText().trim();
+        String password = new String(passwordField.getPassword());
+
+        if (fullName.isEmpty() || email.isEmpty() || password.isBlank()) {
+            showMessage(
+                    "Missing Details",
+                    "Enter staff name, email, and password.",
+                    true
+            );
+            return;
+        }
+
+        if (!email.contains("@")) {
+            showMessage(
+                    "Invalid Email",
+                    "Enter a valid staff email address.",
+                    true
+            );
+            return;
+        }
+
+        try {
+            createStaffAccount(fullName, email, password);
+            showMessage(
+                    "Staff Added",
+                    "Staff account created successfully.\n"
+                            + "The staff member can now log in.",
+                    false
+            );
+            refreshUserTable();
+            refreshDashboard();
+
+        } catch (SQLException exception) {
+            showMessage(
+                    "Staff Error",
+                    "Could not create staff account.\n"
+                            + exception.getMessage(),
+                    true
+            );
+        }
+    }
+
+    private void createStaffAccount(
+            String fullName,
+            String email,
+            String password
+    ) throws SQLException {
+        String[] nameParts = fullName.trim().split("\\s+", 2);
+        String firstName = nameParts[0];
+        String lastName = nameParts.length > 1 ? nameParts[1] : "Staff";
+
+        String staffSql = """
+                INSERT INTO Staff (First_Name, Middle_Name, Last_Name, Role)
+                VALUES (?, NULL, ?, 'STAFF')
+                """;
+
+        String accountSql = """
+                INSERT INTO User_Account
+                (Email, Password_Hash, Role, Staff_ID)
+                VALUES (?, ?, 'STAFF', ?)
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            connection.setAutoCommit(false);
+
+            try {
+                int staffId;
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        staffSql,
+                        java.sql.Statement.RETURN_GENERATED_KEYS
+                )) {
+                    statement.setString(1, firstName);
+                    statement.setString(2, lastName);
+                    statement.executeUpdate();
+
+                    try (ResultSet keys = statement.getGeneratedKeys()) {
+                        if (!keys.next()) {
+                            throw new SQLException("Staff ID was not created.");
+                        }
+                        staffId = keys.getInt(1);
+                    }
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        accountSql
+                )) {
+                    statement.setString(1, email);
+                    statement.setString(2, password);
+                    statement.setInt(3, staffId);
+                    statement.executeUpdate();
+                }
+
+                connection.commit();
+
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        }
+    }
+
+    private void deleteSelectedStaff() {
+        int selectedRow = userTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            showMessage(
+                    "Select Staff",
+                    "Select a staff account from the table first.",
+                    true
+            );
+            return;
+        }
+
+        int modelRow = userTable.convertRowIndexToModel(selectedRow);
+        String role = String.valueOf(userModel.getValueAt(modelRow, 2));
+        Object staffIdValue = userModel.getValueAt(modelRow, 4);
+        String email = String.valueOf(userModel.getValueAt(modelRow, 1));
+
+        if (!"STAFF".equalsIgnoreCase(role) || staffIdValue == null) {
+            showMessage(
+                    "Staff Only",
+                    "Only a STAFF account can be deleted here.\n"
+                            + "Customer and Admin accounts are protected.",
+                    true
+            );
+            return;
+        }
+
+        int staffId = Integer.parseInt(staffIdValue.toString());
+
+        int confirmation = JOptionPane.showConfirmDialog(
+                this,
+                "Delete staff account: " + email + "?\n\n"
+                        + "Their login will be removed. Existing orders will "
+                        + "remain, but will no longer be assigned to this staff member.",
+                "Delete Staff",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (confirmation != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            deleteStaffAccount(staffId);
+            showMessage(
+                    "Staff Deleted",
+                    "The staff account was deleted successfully.",
+                    false
+            );
+            refreshUserTable();
+            refreshOrderTable();
+            refreshDashboard();
+
+        } catch (SQLException exception) {
+            showMessage(
+                    "Delete Error",
+                    "Could not delete staff account.\n"
+                            + exception.getMessage(),
+                    true
+            );
+        }
+    }
+
+    private void deleteStaffAccount(int staffId) throws SQLException {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            connection.setAutoCommit(false);
+
+            try {
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE Orders SET Staff_ID = NULL WHERE Staff_ID = ?"
+                )) {
+                    statement.setInt(1, staffId);
+                    statement.executeUpdate();
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM Staff_Phone WHERE Staff_ID = ?"
+                )) {
+                    statement.setInt(1, staffId);
+                    statement.executeUpdate();
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM User_Account WHERE Staff_ID = ?"
+                )) {
+                    statement.setInt(1, staffId);
+                    statement.executeUpdate();
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM Staff WHERE Staff_ID = ?"
+                )) {
+                    statement.setInt(1, staffId);
+                    statement.executeUpdate();
+                }
+
+                connection.commit();
+
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        }
     }
 
     private void refreshUserTable() {
@@ -1400,4 +1660,3 @@ public class AdminDashboard extends JFrame {
         }
     }
 }
-
