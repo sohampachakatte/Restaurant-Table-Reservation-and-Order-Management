@@ -721,38 +721,95 @@ public class staffDashboard extends JFrame {
 
     private JPanel createReservationCard(Reservation reservation) {
         JPanel card = new RoundedPanel(18, CARD);
-        card.setLayout(new GridLayout(1, 5, 15, 10));
+        card.setLayout(new BorderLayout(16, 0));
         card.setBorder(new EmptyBorder(18, 20, 18, 20));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 85));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 96));
 
-        card.add(createInfoLabel(
+        JPanel detailsPanel = new JPanel(new GridLayout(1, 5, 15, 10));
+        detailsPanel.setOpaque(false);
+
+        detailsPanel.add(createInfoLabel(
                 "Reservation",
                 "#" + reservation.getReservationId()
         ));
 
-        card.add(createInfoLabel(
+        detailsPanel.add(createInfoLabel(
                 "Customer",
                 reservation.getCustomerName()
         ));
 
-        card.add(createInfoLabel(
+        detailsPanel.add(createInfoLabel(
                 "Time",
                 reservation.getReservationDate()
                         + " " + reservation.getReservationTime()
         ));
 
-        card.add(createInfoLabel(
+        detailsPanel.add(createInfoLabel(
                 "Table",
                 "Table " + reservation.getTableId()
                         + " · " + reservation.getTableLocation()
         ));
 
-        card.add(createInfoLabel(
+        detailsPanel.add(createInfoLabel(
                 "Guests",
                 reservation.getNumberOfGuests() + " Guests"
         ));
 
+        RoundedButton cancelButton = new RoundedButton(
+                "Cancel",
+                RED,
+                Color.WHITE
+        );
+        cancelButton.setPreferredSize(new Dimension(105, 34));
+        cancelButton.addActionListener(e -> cancelReservation(
+                reservation.getReservationId()
+        ));
+
+        card.add(detailsPanel, BorderLayout.CENTER);
+        card.add(cancelButton, BorderLayout.EAST);
+
         return card;
+    }
+
+    private void cancelReservation(int reservationId) {
+        int answer = JOptionPane.showConfirmDialog(
+                this,
+                "Cancel Reservation #" + reservationId + "?\n"
+                        + "The table will become AVAILABLE again.",
+                "Cancel Reservation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            boolean cancelled = reservationDAO.cancelReservation(reservationId);
+
+            if (!cancelled) {
+                showMessage(
+                        "Reservation Not Found",
+                        "The reservation was already cancelled or does not exist.",
+                        true
+                );
+                return;
+            }
+
+            refreshReservationsList();
+            refreshTablesGrid();
+            refreshDashboard();
+            showToast("Reservation #" + reservationId + " cancelled.");
+
+        } catch (SQLException exception) {
+            showMessage(
+                    "Cancellation Error",
+                    "Could not cancel the reservation.\n"
+                            + exception.getMessage(),
+                    true
+            );
+        }
     }
 
     private JComponent createTablesPage() {

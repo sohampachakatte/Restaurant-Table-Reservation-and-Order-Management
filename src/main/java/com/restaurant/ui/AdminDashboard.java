@@ -958,7 +958,89 @@ public class AdminDashboard extends JFrame {
         page.add(Box.createVerticalStrut(20));
         page.add(createTableScrollPane(reservationTable));
 
+        page.add(Box.createVerticalStrut(14));
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(
+                FlowLayout.LEFT,
+                10,
+                0
+        ));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JButton cancelButton = new RoundedButton(
+                "Cancel Selected Reservation",
+                RED,
+                Color.WHITE
+        );
+        cancelButton.addActionListener(e -> cancelSelectedReservation());
+        buttonPanel.add(cancelButton);
+
+        page.add(buttonPanel);
+
         return wrapInScrollPane(page);
+    }
+
+    private void cancelSelectedReservation() {
+        int row = reservationTable.getSelectedRow();
+
+        if (row == -1) {
+            showMessage(
+                    "Select Reservation",
+                    "Select a reservation from the table first.",
+                    true
+            );
+            return;
+        }
+
+        int reservationId = Integer.parseInt(
+                reservationModel.getValueAt(row, 0).toString()
+        );
+
+        int answer = JOptionPane.showConfirmDialog(
+                this,
+                "Cancel Reservation #" + reservationId + "?\n"
+                        + "Its restaurant table will become AVAILABLE again.",
+                "Cancel Reservation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            boolean cancelled = reservationDAO.cancelReservation(reservationId);
+
+            if (!cancelled) {
+                showMessage(
+                        "Reservation Not Found",
+                        "The reservation was already cancelled or does not exist.",
+                        true
+                );
+                return;
+            }
+
+            refreshReservationTable();
+            refreshRestaurantTable();
+            refreshDashboard();
+
+            showMessage(
+                    "Reservation Cancelled",
+                    "Reservation #" + reservationId
+                            + " was cancelled and its table is available again.",
+                    false
+            );
+
+        } catch (SQLException exception) {
+            showMessage(
+                    "Cancellation Error",
+                    "Could not cancel the reservation.\n"
+                            + exception.getMessage(),
+                    true
+            );
+        }
     }
 
     private void refreshReservationTable() {
@@ -1181,7 +1263,6 @@ public class AdminDashboard extends JFrame {
         ));
         staffButtons.setOpaque(false);
         staffButtons.setAlignmentX(Component.LEFT_ALIGNMENT);
-        page.add(addStaffButton);
         staffButtons.add(addStaffButton);
         staffButtons.add(deleteStaffButton);
 
@@ -1660,3 +1741,4 @@ public class AdminDashboard extends JFrame {
         }
     }
 }
+

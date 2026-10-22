@@ -255,7 +255,8 @@ public class ReservationDAO {
         return reservations;
     }
 
-    public void cancelReservation(int reservationId)
+    // Used by staff and admin. Returns false when the reservation is absent.
+    public boolean cancelReservation(int reservationId)
             throws SQLException {
 
         String tableIdSql = """
@@ -263,6 +264,41 @@ public class ReservationDAO {
                 FROM Reservation_Table
                 WHERE Reservation_ID = ?
                 """;
+
+        return cancelReservationInternal(
+                reservationId,
+                tableIdSql,
+                null
+        );
+    }
+
+    // Used by the customer dashboard. A customer can cancel only their own booking.
+    public boolean cancelReservation(
+            int reservationId,
+            int customerId
+    ) throws SQLException {
+
+        String tableIdSql = """
+                SELECT rtb.Table_ID
+                FROM Reservation r
+                JOIN Reservation_Table rtb
+                    ON r.Reservation_ID = rtb.Reservation_ID
+                WHERE r.Reservation_ID = ?
+                  AND r.Customer_ID = ?
+                """;
+
+        return cancelReservationInternal(
+                reservationId,
+                tableIdSql,
+                customerId
+        );
+    }
+
+    private boolean cancelReservationInternal(
+            int reservationId,
+            String tableIdSql,
+            Integer customerId
+    ) throws SQLException {
 
         String deleteLinkSql = """
                 DELETE FROM Reservation_Table
@@ -278,23 +314,27 @@ public class ReservationDAO {
                 UPDATE RestaurantTable
                 SET Status = 'AVAILABLE'
                 WHERE Table_ID = ?
-                  AND Status = 'RESERVED'
                 """;
 
         try (Connection connection = DatabaseConnection.getConnection()) {
             connection.setAutoCommit(false);
 
             try {
-                int tableId;
+                Integer tableId = null;
 
                 try (PreparedStatement statement =
                              connection.prepareStatement(tableIdSql)) {
 
                     statement.setInt(1, reservationId);
 
+                    if (customerId != null) {
+                        statement.setInt(2, customerId);
+                    }
+
                     try (ResultSet result = statement.executeQuery()) {
                         if (!result.next()) {
-                            throw new SQLException("Reservation was not found.");
+                            connection.rollback();
+                            return false;
                         }
 
                         tableId = result.getInt("Table_ID");
@@ -323,6 +363,7 @@ public class ReservationDAO {
                 }
 
                 connection.commit();
+                return true;
 
             } catch (SQLException exception) {
                 connection.rollback();

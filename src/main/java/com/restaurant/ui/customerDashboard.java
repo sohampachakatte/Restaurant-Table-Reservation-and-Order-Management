@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class customerDashboard extends JFrame {
 
-    private static final Color BG = new Color(255, 252, 247);
+    private static final Color BG = new Color(255, 250, 242);
     private static final Color CARD = Color.WHITE;
     private static final Color BROWN = new Color(82, 52, 30);
     private static final Color GOLD = new Color(194, 137, 42);
@@ -54,6 +54,20 @@ public class customerDashboard extends JFrame {
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel pageContainer = new JPanel(cardLayout);
+    private String currentPage = "HOME";
+
+    // Checks the database periodically while a reservation screen is open,
+    // so changes made by staff/admin appear without restarting the customer app.
+    private final Timer tableStatusRefreshTimer = new Timer(8000, event -> {
+        if ("RESERVE".equals(currentPage)
+                || "RESERVATIONS".equals(currentPage)) {
+            reloadAvailableTables();
+
+            if ("RESERVATIONS".equals(currentPage)) {
+                refreshReservationsPanel();
+            }
+        }
+    });
 
     /*
      * Cart stores real Menu_Item objects from the database.
@@ -64,11 +78,15 @@ public class customerDashboard extends JFrame {
     private List<RestaurantTable> availableTables = new ArrayList<>();
 
     private final JButton cartButton = new JButton("🛒 Cart (0)");
-    private final JPanel cartRowsPanel = new JPanel();
+    private final JPanel cartRowsPanel = new RoundedPanel(22, CARD);
     private final JPanel ordersPanel = new JPanel();
     private final JPanel orderDetailsPanel = new JPanel();
     private final JPanel reservationsPanel = new JPanel();
     private final JPanel reservationGrid = new JPanel();
+    private final JPanel checkoutItemsPanel = new RoundedPanel(
+            16,
+            new Color(252, 249, 245)
+    );
 
     private final JLabel subtotalLabel = new JLabel("₹0");
     private final JLabel totalLabel = new JLabel("₹0");
@@ -99,6 +117,7 @@ public class customerDashboard extends JFrame {
 
         loadInitialDatabaseData();
         add(createMainPanel());
+        tableStatusRefreshTimer.start();
     }
 
     private void loadInitialDatabaseData() {
@@ -163,6 +182,7 @@ public class customerDashboard extends JFrame {
             showPage("ORDERS");
         }));
         links.add(navButton("My Reservations", e -> {
+            reloadAvailableTables();
             refreshReservationsPanel();
             showPage("RESERVATIONS");
         }));
@@ -216,13 +236,11 @@ public class customerDashboard extends JFrame {
             String text,
             java.awt.event.ActionListener action
     ) {
-        JButton button = new JButton(text);
+        RoundedButton button = new RoundedButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 12));
         button.setForeground(BROWN);
-        button.setBackground(CARD);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBackground(new Color(255, 250, 242));
+        button.setPreferredSize(new Dimension(110, 34));
         button.addActionListener(action);
 
         return button;
@@ -296,7 +314,6 @@ public class customerDashboard extends JFrame {
         textPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel heading = new JLabel(
-                "<html>Exceptional Food.<br>Unforgettable<br>Moments.</html>" +
                 "<html><div style='text-align:left;'>"
                         + "Exceptional Food.<br>Unforgettable<br>Moments."
                         + "</div></html>"
@@ -630,12 +647,7 @@ public class customerDashboard extends JFrame {
         left.add(sectionTitle("Your Cart"), BorderLayout.NORTH);
 
         cartRowsPanel.setLayout(new BoxLayout(cartRowsPanel, BoxLayout.Y_AXIS));
-        cartRowsPanel.setBackground(CARD);
-
-        cartRowsPanel.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(225, 213, 202), 1, true),
-                new EmptyBorder(14, 14, 14, 14)
-        ));
+        cartRowsPanel.setBorder(new EmptyBorder(14, 14, 14, 14));
 
         left.add(cartRowsPanel, BorderLayout.CENTER);
 
@@ -648,19 +660,30 @@ public class customerDashboard extends JFrame {
     }
 
     private JPanel createCheckoutPanel() {
-        JPanel checkout = new JPanel();
-        checkout.setPreferredSize(new Dimension(300, 0));
+        JPanel checkout = new RoundedPanel(22, CARD);
+        checkout.setPreferredSize(new Dimension(330, 0));
         checkout.setBackground(CARD);
         checkout.setLayout(new BoxLayout(checkout, BoxLayout.Y_AXIS));
 
-        checkout.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(225, 213, 202), 1, true),
-                new EmptyBorder(18, 18, 18, 18)
-        ));
+        checkout.setBorder(new EmptyBorder(18, 18, 18, 18));
 
         JLabel title = new JLabel("Checkout");
         title.setFont(new Font("Georgia", Font.BOLD, 20));
         title.setForeground(BROWN);
+
+        JLabel selectedItemsTitle = new JLabel("Selected dishes");
+        selectedItemsTitle.setFont(new Font("Arial", Font.BOLD, 13));
+        selectedItemsTitle.setForeground(BROWN);
+
+        checkoutItemsPanel.setLayout(
+                new BoxLayout(checkoutItemsPanel, BoxLayout.Y_AXIS)
+        );
+        checkoutItemsPanel.setBorder(new EmptyBorder(8, 10, 8, 10));
+        checkoutItemsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        checkoutItemsPanel.setPreferredSize(new Dimension(292, 42));
+        checkoutItemsPanel.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 42)
+        );
 
         JLabel subtotalText = new JLabel("Food Total");
         JLabel totalText = new JLabel("Total Bill");
@@ -670,6 +693,10 @@ public class customerDashboard extends JFrame {
         totalLabel.setForeground(new Color(175, 115, 20));
 
         checkout.add(title);
+        checkout.add(Box.createVerticalStrut(14));
+        checkout.add(selectedItemsTitle);
+        checkout.add(Box.createVerticalStrut(7));
+        checkout.add(checkoutItemsPanel);
         checkout.add(Box.createVerticalStrut(16));
         checkout.add(createPriceRow(subtotalText, subtotalLabel));
         checkout.add(Box.createVerticalStrut(9));
@@ -1007,6 +1034,7 @@ public class customerDashboard extends JFrame {
 
     private void refreshCartPage() {
         cartRowsPanel.removeAll();
+        checkoutItemsPanel.removeAll();
 
         if (cart.isEmpty()) {
             JLabel empty = new JLabel(
@@ -1016,6 +1044,11 @@ public class customerDashboard extends JFrame {
             empty.setForeground(new Color(120, 100, 85));
             cartRowsPanel.add(empty);
 
+            JLabel noItems = new JLabel("No dishes selected yet.");
+            noItems.setForeground(new Color(120, 100, 85));
+            noItems.setFont(new Font("Arial", Font.ITALIC, 12));
+            checkoutItemsPanel.add(noItems);
+
         } else {
             for (Map.Entry<MenuItem, Integer> entry : cart.entrySet()) {
                 cartRowsPanel.add(
@@ -1023,8 +1056,27 @@ public class customerDashboard extends JFrame {
                 );
 
                 cartRowsPanel.add(Box.createVerticalStrut(8));
+
+                checkoutItemsPanel.add(createCheckoutItemRow(
+                        entry.getKey(),
+                        entry.getValue()
+                ));
+                checkoutItemsPanel.add(Box.createVerticalStrut(6));
             }
         }
+
+        // Keep this section compact. Its height grows only when more dishes
+        // are selected instead of leaving a large blank white area.
+        int checkoutItemsHeight = cart.isEmpty()
+                ? 42
+                : Math.min(164, 16 + (cart.size() * 36));
+
+        checkoutItemsPanel.setPreferredSize(
+                new Dimension(292, checkoutItemsHeight)
+        );
+        checkoutItemsPanel.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, checkoutItemsHeight)
+        );
 
         BigDecimal total = getCartTotal();
 
@@ -1038,17 +1090,44 @@ public class customerDashboard extends JFrame {
 
         cartRowsPanel.revalidate();
         cartRowsPanel.repaint();
+        checkoutItemsPanel.revalidate();
+        checkoutItemsPanel.repaint();
+    }
+
+    private JPanel createCheckoutItemRow(MenuItem item, int quantity) {
+        BigDecimal lineTotal = item.getPrice().multiply(
+                BigDecimal.valueOf(quantity)
+        );
+
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setOpaque(false);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+        JLabel name = new JLabel(
+                "<html>" + getFoodEmoji(item.getCategory()) + " "
+                        + item.getItemName() + " <span style='color:#7B6B60;'>(x"
+                        + quantity + ")</span></html>"
+        );
+        name.setForeground(BROWN);
+        name.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        JLabel amount = new JLabel(
+                "₹" + lineTotal.stripTrailingZeros().toPlainString()
+        );
+        amount.setForeground(BROWN);
+        amount.setFont(new Font("Arial", Font.BOLD, 12));
+
+        row.add(name, BorderLayout.CENTER);
+        row.add(amount, BorderLayout.EAST);
+        return row;
     }
 
     private JPanel createCartRow(MenuItem item, int quantity) {
-        JPanel row = new JPanel(new BorderLayout(10, 0));
-        row.setBackground(CARD);
+        JPanel row = new RoundedPanel(16, CARD);
+        row.setLayout(new BorderLayout(10, 0));
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 72));
 
-        row.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(225, 213, 202), 1, true),
-                new EmptyBorder(9, 12, 9, 12)
-        ));
+        row.setBorder(new EmptyBorder(9, 12, 9, 12));
 
         JLabel details = new JLabel(
                 "<html><b>" + getFoodEmoji(item.getCategory()) + " "
@@ -1728,10 +1807,73 @@ public class customerDashboard extends JFrame {
         status.setForeground(GREEN);
         status.setFont(new Font("Arial", Font.BOLD, 12));
 
+        RoundedButton cancelButton = new RoundedButton("Cancel Reservation");
+        cancelButton.setBackground(RED);
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setFont(new Font("Arial", Font.BOLD, 11));
+        cancelButton.addActionListener(e -> cancelCustomerReservation(
+                reservation.getReservationId()
+        ));
+
+        JPanel actions = new JPanel();
+        actions.setOpaque(false);
+        actions.setLayout(new BoxLayout(actions, BoxLayout.Y_AXIS));
+        status.setAlignmentX(Component.CENTER_ALIGNMENT);
+        cancelButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        actions.add(status);
+        actions.add(Box.createVerticalStrut(7));
+        actions.add(cancelButton);
+
         card.add(details, BorderLayout.CENTER);
-        card.add(status, BorderLayout.EAST);
+        card.add(actions, BorderLayout.EAST);
 
         return card;
+    }
+
+    private void cancelCustomerReservation(int reservationId) {
+        int answer = JOptionPane.showConfirmDialog(
+                this,
+                "Cancel Reservation #" + reservationId + "?\n"
+                        + "The table will become available again.",
+                "Cancel Reservation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            boolean cancelled = reservationDAO.cancelReservation(
+                    reservationId,
+                    customerId
+            );
+
+            if (!cancelled) {
+                showInfo(
+                        "Reservation Not Found",
+                        "This reservation was already cancelled or does not belong to you."
+                );
+                return;
+            }
+
+            selectedReservationTable = null;
+            reloadAvailableTables();
+            refreshReservationsPanel();
+
+            showInfo(
+                    "Reservation Cancelled",
+                    "Reservation #" + reservationId + " has been cancelled."
+            );
+
+        } catch (SQLException exception) {
+            showInfo(
+                    "Cancellation Error",
+                    "Could not cancel the reservation.\n"
+                            + exception.getMessage()
+            );
+        }
     }
 
     private void reloadAvailableTables() {
@@ -1790,6 +1932,14 @@ public class customerDashboard extends JFrame {
     }
 
     private void showPage(String page) {
+        // Read the newest table statuses from RestaurantDB each time the
+        // reservation screens are opened. This makes an admin/staff table
+        // status update visible to the customer without restarting the app.
+        if ("RESERVE".equals(page) || "RESERVATIONS".equals(page)) {
+            reloadAvailableTables();
+        }
+
+        currentPage = page;
         cardLayout.show(pageContainer, page);
     }
 
@@ -1945,19 +2095,24 @@ public class customerDashboard extends JFrame {
                     RenderingHints.VALUE_ANTIALIAS_ON
             );
 
-            g2.setColor(
-                    getModel().isPressed()
-                            ? getBackground().darker()
-                            : getBackground()
-            );
+            Color base = getBackground();
+            if (!isEnabled()) {
+                base = new Color(190, 190, 190);
+            } else if (getModel().isPressed()) {
+                base = base.darker();
+            } else if (getModel().isRollover()) {
+                base = base.brighter();
+            }
+
+            g2.setColor(base);
 
             g2.fillRoundRect(
                     0,
                     0,
                     getWidth(),
                     getHeight(),
-                    16,
-                    16
+                    20,
+                    20
             );
 
             g2.dispose();
@@ -1965,3 +2120,4 @@ public class customerDashboard extends JFrame {
         }
     }
 }
+
