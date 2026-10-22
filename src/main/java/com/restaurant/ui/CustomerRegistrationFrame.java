@@ -22,7 +22,7 @@ public class CustomerRegistrationFrame extends JFrame {
 
     public CustomerRegistrationFrame() {
 
-        setTitle("Maison Ember - Customer Registration");
+        setTitle("VELORA - Customer Registration");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setMinimumSize(new Dimension(1000, 750));
@@ -61,7 +61,7 @@ public class CustomerRegistrationFrame extends JFrame {
         c.anchor = GridBagConstraints.WEST;
 
         // Branding
-        JLabel logo = new JLabel("MAISON EMBER");
+        JLabel logo = new JLabel("VELORA");
         logo.setFont(new Font("Serif", Font.BOLD, 27));
         logo.setForeground(GOLD);
         logo.setHorizontalAlignment(SwingConstants.CENTER);

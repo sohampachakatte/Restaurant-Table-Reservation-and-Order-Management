@@ -112,7 +112,7 @@ public class AdminDashboard extends JFrame {
         header.setBackground(DARK);
         header.setBorder(new EmptyBorder(12, 35, 12, 35));
 
-        JLabel brand = new JLabel("Maison Ember  |  Admin Portal");
+        JLabel brand = new JLabel("VELORA  |  Admin Portal");
         brand.setFont(new Font("Serif", Font.BOLD, 22));
         brand.setForeground(Color.WHITE);
 

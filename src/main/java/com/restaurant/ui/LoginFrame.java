@@ -40,7 +40,7 @@ public class LoginFrame extends JFrame {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.CENTER;
 
-        JLabel logo = new JLabel("MAISON EMBER", SwingConstants.CENTER);
+        JLabel logo = new JLabel("VALORA", SwingConstants.CENTER);
         logo.setFont(new Font("Serif", Font.BOLD, 31));
         logo.setForeground(new Color(242, 193, 105));
 

@@ -111,7 +111,7 @@ public class customerDashboard extends JFrame {
     public customerDashboard(String customerEmail) {
         this.customerEmail = customerEmail;
 
-        setTitle("Maison Ember - Customer Portal");
+        setTitle("VELORA - Customer Portal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
@@ -164,7 +164,7 @@ public class customerDashboard extends JFrame {
         nav.setBackground(CARD);
         nav.setBorder(new EmptyBorder(10, 35, 10, 35));
 
-        JLabel logo = new JLabel("Maison Ember");
+        JLabel logo = new JLabel("VELORA");
         logo.setFont(new Font("Georgia", Font.BOLD, 20));
         logo.setForeground(BROWN);
 
@@ -952,7 +952,7 @@ public class customerDashboard extends JFrame {
 
     private JLabel createFooter() {
         JLabel footer = new JLabel(
-                "Maison Ember · 12 MG Road, Kolhapur · "
+                "VELORA · 12 MG Road, Mumbai · "
                         + "+91 98765 43210 · Open daily 12:00 – 22:00"
         );
 

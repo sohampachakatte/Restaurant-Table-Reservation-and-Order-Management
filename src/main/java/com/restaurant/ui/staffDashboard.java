@@ -96,7 +96,7 @@ public class staffDashboard extends JFrame {
         header.setBackground(DARK);
         header.setBorder(new EmptyBorder(12, 35, 12, 35));
 
-        JLabel brand = new JLabel("Maison Ember  |  Staff Portal");
+        JLabel brand = new JLabel("VELORA  |  Staff Portal");
         brand.setFont(new Font("Serif", Font.BOLD, 22));
         brand.setForeground(Color.WHITE);
 
